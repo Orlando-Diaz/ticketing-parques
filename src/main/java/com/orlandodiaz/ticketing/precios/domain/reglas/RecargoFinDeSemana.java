@@ -7,10 +7,14 @@ import com.orlandodiaz.ticketing.precios.domain.TipoAjuste;
 import java.time.DayOfWeek;
 import java.util.Optional;
 
-/** Sabados y domingos tienen un recargo del 10%. (Los festivos se agregan despues.) */
+/** Recargo los sabados y domingos. El porcentaje lo decide cada parque. (Festivos: despues.) */
 public class RecargoFinDeSemana implements ReglaDePrecio {
 
-    private static final int PORCENTAJE = 10;
+    private final int porcentaje;
+
+    public RecargoFinDeSemana(int porcentaje) {
+        this.porcentaje = porcentaje;
+    }
 
     @Override
     public Optional<Ajuste> evaluar(ContextoDePrecio c) {
@@ -18,7 +22,7 @@ public class RecargoFinDeSemana implements ReglaDePrecio {
         if (dia != DayOfWeek.SATURDAY && dia != DayOfWeek.SUNDAY) {
             return Optional.empty();
         }
-        return Optional.of(new Ajuste(TipoAjuste.RECARGO, "Recargo fin de semana (10%)",
-                c.precioBase().porcentaje(PORCENTAJE)));
+        return Optional.of(new Ajuste(TipoAjuste.RECARGO, "Recargo fin de semana (" + porcentaje + "%)",
+                c.precioBase().porcentaje(porcentaje)));
     }
 }

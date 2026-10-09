@@ -4,7 +4,8 @@ Sistema de venta de entradas y control de acceso para parques y eventos.
 Proyecto para practicar **principios SOLID** y **arquitectura hexagonal** con Java 21.
 
 ## Estado
-Fase 1 en curso: dominio puro (motor de precios con reglas intercambiables).
+Fase 1 en curso: dominio puro. Motor de precios con tarifas configurables por parque
+(tarifa unica o por categoria de visitante) y reglas de ajuste opcionales.
 
 ## Modulos
 | Modulo | Responsabilidad |

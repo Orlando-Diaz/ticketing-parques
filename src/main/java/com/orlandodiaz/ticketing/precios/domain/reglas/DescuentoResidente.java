@@ -6,17 +6,21 @@ import com.orlandodiaz.ticketing.precios.domain.ReglaDePrecio;
 import com.orlandodiaz.ticketing.precios.domain.TipoAjuste;
 import java.util.Optional;
 
-/** Residentes del Quindio tienen 20% de descuento. */
+/** Descuento para residentes. El porcentaje lo decide cada parque. */
 public class DescuentoResidente implements ReglaDePrecio {
 
-    private static final int PORCENTAJE = 20;
+    private final int porcentaje;
+
+    public DescuentoResidente(int porcentaje) {
+        this.porcentaje = porcentaje;
+    }
 
     @Override
     public Optional<Ajuste> evaluar(ContextoDePrecio c) {
         if (!c.residente()) {
             return Optional.empty();
         }
-        return Optional.of(new Ajuste(TipoAjuste.DESCUENTO, "Descuento residente (20%)",
-                c.precioBase().porcentaje(PORCENTAJE)));
+        return Optional.of(new Ajuste(TipoAjuste.DESCUENTO, "Descuento residente (" + porcentaje + "%)",
+                c.precioBase().porcentaje(porcentaje)));
     }
 }
