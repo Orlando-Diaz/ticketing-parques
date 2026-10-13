@@ -32,4 +32,13 @@ class ArquitecturaTest {
                     .should().dependOnClassesThat().resideInAPackage("..infrastructure..")
                     // todavia no hay clases en application; sin esto ArchUnit falla por "regla vacia"
                     .allowEmptyShould(true);
+
+    /**
+     * Los modulos no se conocen entre si por dentro: ventas solo puede tocar precios y catalogo
+     * a traves de sus adaptadores (infrastructure). Su dominio y su aplicacion hablan con puertos propios.
+     */
+    @ArchTest
+    static final ArchRule ventas_solo_conoce_otros_modulos_desde_sus_adaptadores =
+            noClasses().that().resideInAnyPackage("..ventas.domain..", "..ventas.application..")
+                    .should().dependOnClassesThat().resideInAnyPackage("..precios..", "..catalogo..");
 }
