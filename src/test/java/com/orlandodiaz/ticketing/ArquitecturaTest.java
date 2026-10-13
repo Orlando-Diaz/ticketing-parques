@@ -41,4 +41,16 @@ class ArquitecturaTest {
     static final ArchRule ventas_solo_conoce_otros_modulos_desde_sus_adaptadores =
             noClasses().that().resideInAnyPackage("..ventas.domain..", "..ventas.application..")
                     .should().dependOnClassesThat().resideInAnyPackage("..precios..", "..catalogo..");
+
+    /** Ventas publica eventos pero no sabe que facturacion existe. */
+    @ArchTest
+    static final ArchRule ventas_no_conoce_facturacion =
+            noClasses().that().resideInAPackage("..ventas..")
+                    .should().dependOnClassesThat().resideInAPackage("..facturacion..");
+
+    /** Facturacion solo conoce a ventas en su adaptador que escucha eventos (infrastructure). */
+    @ArchTest
+    static final ArchRule facturacion_solo_conoce_otros_modulos_desde_sus_adaptadores =
+            noClasses().that().resideInAnyPackage("..facturacion.domain..", "..facturacion.application..")
+                    .should().dependOnClassesThat().resideInAnyPackage("..ventas..", "..precios..", "..catalogo..");
 }

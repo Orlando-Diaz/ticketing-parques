@@ -13,6 +13,7 @@ import com.orlandodiaz.ticketing.precios.domain.TarifaDeCategoria;
 import com.orlandodiaz.ticketing.precios.domain.TarifaPorCategoria;
 import com.orlandodiaz.ticketing.precios.domain.TarifaUnica;
 import com.orlandodiaz.ticketing.precios.infrastructure.RepositorioEnMemoriaDeConfiguracionDePrecios;
+import com.orlandodiaz.ticketing.shared.application.PublicadorDeEventos;
 import com.orlandodiaz.ticketing.shared.domain.Dinero;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
 import com.orlandodiaz.ticketing.ventas.infrastructure.CupoDeParqueDesdeModuloCatalogo;
@@ -22,22 +23,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Arma los tres modulos conectados con sus adaptadores, todo en memoria.
+ * Arma los modulos conectados con sus adaptadores, todo en memoria. Es publico para reutilizarlo
+ * en las pruebas de otros modulos (ej. facturacion).
  * Parque A: cupo 100, precios por categoria (nino 25.000 / adulto 50.000).
  * Parque B: cupo 2, tarifa unica de 40.000.
  */
-class Escenario {
+public class Escenario {
 
-    static final ParqueId PARQUE_A = new ParqueId("parque-a");
-    static final ParqueId PARQUE_B = new ParqueId("parque-b");
-    static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 13, 10, 0);
-    static final LocalDate VISITA = LocalDate.of(2026, 10, 20);
+    public static final ParqueId PARQUE_A = new ParqueId("parque-a");
+    public static final ParqueId PARQUE_B = new ParqueId("parque-b");
+    public static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 13, 10, 0);
+    public static final LocalDate VISITA = LocalDate.of(2026, 10, 20);
 
-    final ComprarEntradas comprar;
-    final CancelarOrden cancelar;
-    final ConsultarCupoDisponible consultarCupo;
+    public final ComprarEntradas comprar;
+    public final CancelarOrden cancelar;
+    public final ConsultarCupoDisponible consultarCupo;
 
-    Escenario(RepositorioDeOrdenes ordenes) {
+    public Escenario(RepositorioDeOrdenes ordenes) {
+        this(ordenes, evento -> { }); // sin nadie escuchando
+    }
+
+    public Escenario(RepositorioDeOrdenes ordenes, PublicadorDeEventos eventos) {
         var parques = new RepositorioEnMemoriaDeParques();
         var disponibilidades = new RepositorioEnMemoriaDeDisponibilidad();
         parques.guardar(new Parque(PARQUE_A, "Parque A", 100));
@@ -57,8 +63,8 @@ class Escenario {
                 new ReservarCupo(parques, disponibilidades), new LiberarCupo(disponibilidades));
         Reloj reloj = () -> AHORA;
 
-        this.comprar = new ComprarEntradas(precios, cupo, ordenes, reloj);
-        this.cancelar = new CancelarOrden(ordenes, cupo, reloj);
+        this.comprar = new ComprarEntradas(precios, cupo, ordenes, reloj, eventos);
+        this.cancelar = new CancelarOrden(ordenes, cupo, reloj, eventos);
         this.consultarCupo = new ConsultarCupoDisponible(parques, disponibilidades);
     }
 }
