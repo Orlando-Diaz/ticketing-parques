@@ -2,5 +2,17 @@ spring:
   application:
     name: ticketing-parques
 
+  # Las credenciales NUNCA van en el codigo: se leen de variables de entorno.
+  # DB_PASSWORD no tiene valor por defecto a proposito: si falta, la app no arranca y te lo dice.
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ticketing_parques}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate   # Hibernate NO crea tablas: solo verifica que coincidan con las migraciones de Flyway
+
 server:
   port: 8080

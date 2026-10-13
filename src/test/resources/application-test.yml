@@ -1,0 +1,7 @@
+# Perfil "test": los tests usan una base H2 en memoria (con las mismas migraciones de Flyway),
+# asi corren sin necesitar PostgreSQL ni contrasenas.
+spring:
+  datasource:
+    url: jdbc:h2:mem:ticketing;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""

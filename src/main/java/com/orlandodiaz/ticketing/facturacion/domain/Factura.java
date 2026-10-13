@@ -22,7 +22,8 @@ public class Factura {
     private final LocalDateTime emitidaEn;
     private EstadoFactura estado;
 
-    private Factura(String numero, String ordenRef, ParqueId parqueId, List<LineaDeFactura> lineas, LocalDateTime emitidaEn) {
+    private Factura(String id, String numero, String ordenRef, ParqueId parqueId, List<LineaDeFactura> lineas,
+                    LocalDateTime emitidaEn, EstadoFactura estado) {
         if (numero == null || numero.isBlank()) {
             throw new IllegalArgumentException("La factura necesita un numero");
         }
@@ -32,19 +33,26 @@ public class Factura {
         if (lineas == null || lineas.isEmpty()) {
             throw new IllegalArgumentException("La factura necesita al menos una linea");
         }
-        this.id = UUID.randomUUID().toString();
+        this.id = Objects.requireNonNull(id, "El id es obligatorio");
         this.numero = numero;
         this.ordenRef = ordenRef;
         this.parqueId = Objects.requireNonNull(parqueId, "El parque es obligatorio");
         this.lineas = List.copyOf(lineas);
         this.emitidaEn = Objects.requireNonNull(emitidaEn, "La fecha de emision es obligatoria");
         this.total = this.lineas.stream().map(LineaDeFactura::valor).reduce(Dinero.CERO, Dinero::sumar);
-        this.estado = EstadoFactura.EMITIDA;
+        this.estado = Objects.requireNonNull(estado, "El estado es obligatorio");
     }
 
     public static Factura emitir(String numero, String ordenRef, ParqueId parqueId,
                                  List<LineaDeFactura> lineas, LocalDateTime emitidaEn) {
-        return new Factura(numero, ordenRef, parqueId, lineas, emitidaEn);
+        return new Factura(UUID.randomUUID().toString(), numero, ordenRef, parqueId, lineas, emitidaEn,
+                EstadoFactura.EMITIDA);
+    }
+
+    /** Para que la persistencia vuelva a armar una factura ya guardada. */
+    public static Factura reconstruir(String id, String numero, String ordenRef, ParqueId parqueId,
+                                      List<LineaDeFactura> lineas, LocalDateTime emitidaEn, EstadoFactura estado) {
+        return new Factura(id, numero, ordenRef, parqueId, lineas, emitidaEn, estado);
     }
 
     public void anular() {

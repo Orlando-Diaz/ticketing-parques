@@ -3,7 +3,8 @@ package com.orlandodiaz.ticketing.configuracion;
 import com.orlandodiaz.ticketing.precios.application.CalcularPrecioDeEntrada;
 import com.orlandodiaz.ticketing.precios.application.ConfigurarPreciosDelParque;
 import com.orlandodiaz.ticketing.precios.application.RepositorioDeConfiguracionDePrecios;
-import com.orlandodiaz.ticketing.precios.infrastructure.RepositorioEnMemoriaDeConfiguracionDePrecios;
+import com.orlandodiaz.ticketing.precios.infrastructure.persistence.ConfiguracionPreciosJpaRepository;
+import com.orlandodiaz.ticketing.precios.infrastructure.persistence.RepositorioJpaDeConfiguracionDePrecios;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 public class PreciosConfig {
 
     @Bean
-    RepositorioDeConfiguracionDePrecios repositorioDeConfiguracionDePrecios() {
-        return new RepositorioEnMemoriaDeConfiguracionDePrecios();
+    RepositorioDeConfiguracionDePrecios repositorioDeConfiguracionDePrecios(ConfiguracionPreciosJpaRepository jpa) {
+        return new RepositorioJpaDeConfiguracionDePrecios(jpa);
     }
 
     @Bean

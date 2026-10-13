@@ -2,12 +2,15 @@ package com.orlandodiaz.ticketing.precios.domain.reglas;
 
 import com.orlandodiaz.ticketing.precios.domain.Ajuste;
 import com.orlandodiaz.ticketing.precios.domain.ContextoDePrecio;
+import com.orlandodiaz.ticketing.precios.domain.DescripcionDeRegla;
 import com.orlandodiaz.ticketing.precios.domain.ReglaDePrecio;
 import com.orlandodiaz.ticketing.precios.domain.TipoAjuste;
 import java.util.Optional;
 
 /** Descuento por persona para grupos. Tamano minimo y porcentaje los decide cada parque. */
 public class DescuentoGrupo implements ReglaDePrecio {
+
+    public static final String TIPO = "DESCUENTO_GRUPO";
 
     private final int tamanoMinimo;
     private final int porcentaje;
@@ -31,5 +34,10 @@ public class DescuentoGrupo implements ReglaDePrecio {
         return Optional.of(new Ajuste(TipoAjuste.DESCUENTO,
                 "Descuento grupo de " + tamanoMinimo + " o mas (" + porcentaje + "%)",
                 c.precioBase().porcentaje(porcentaje)));
+    }
+
+    @Override
+    public DescripcionDeRegla describir() {
+        return new DescripcionDeRegla(TIPO, porcentaje, tamanoMinimo);
     }
 }

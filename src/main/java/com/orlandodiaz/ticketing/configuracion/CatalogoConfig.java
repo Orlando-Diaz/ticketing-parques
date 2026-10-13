@@ -6,23 +6,25 @@ import com.orlandodiaz.ticketing.catalogo.application.RegistrarParque;
 import com.orlandodiaz.ticketing.catalogo.application.RepositorioDeDisponibilidad;
 import com.orlandodiaz.ticketing.catalogo.application.RepositorioDeParques;
 import com.orlandodiaz.ticketing.catalogo.application.ReservarCupo;
-import com.orlandodiaz.ticketing.catalogo.infrastructure.RepositorioEnMemoriaDeDisponibilidad;
-import com.orlandodiaz.ticketing.catalogo.infrastructure.RepositorioEnMemoriaDeParques;
+import com.orlandodiaz.ticketing.catalogo.infrastructure.persistence.DisponibilidadJpaRepository;
+import com.orlandodiaz.ticketing.catalogo.infrastructure.persistence.ParqueJpaRepository;
+import com.orlandodiaz.ticketing.catalogo.infrastructure.persistence.RepositorioJpaDeDisponibilidad;
+import com.orlandodiaz.ticketing.catalogo.infrastructure.persistence.RepositorioJpaDeParques;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class CatalogoConfig {
 
-    // --- adaptadores de salida (hoy en memoria; en el siguiente paso, PostgreSQL) ---
+    // --- adaptadores de salida: PostgreSQL via JPA (cambiarlos por otros no toca ningun caso de uso) ---
     @Bean
-    RepositorioDeParques repositorioDeParques() {
-        return new RepositorioEnMemoriaDeParques();
+    RepositorioDeParques repositorioDeParques(ParqueJpaRepository jpa) {
+        return new RepositorioJpaDeParques(jpa);
     }
 
     @Bean
-    RepositorioDeDisponibilidad repositorioDeDisponibilidad() {
-        return new RepositorioEnMemoriaDeDisponibilidad();
+    RepositorioDeDisponibilidad repositorioDeDisponibilidad(DisponibilidadJpaRepository jpa) {
+        return new RepositorioJpaDeDisponibilidad(jpa);
     }
 
     // --- casos de uso ---

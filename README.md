@@ -4,7 +4,7 @@ Sistema de venta de entradas y control de acceso para parques y eventos.
 Proyecto para practicar **principios SOLID** y **arquitectura hexagonal** con Java 21.
 
 ## Estado
-Dominio completo (precios, catalogo, ventas, facturacion por eventos) y API REST con Spring Boot. Siguiente: PostgreSQL y concurrencia.
+Dominio completo (precios, catalogo, ventas, facturacion por eventos) y API REST con Spring Boot. Persistencia en PostgreSQL con Flyway y JPA. Siguiente: concurrencia del cupo.
 
 Detalle del dominio: Motor de precios con tarifas configurables por parque
 (tarifa unica o por categoria de visitante) y reglas de ajuste opcionales.
@@ -20,13 +20,19 @@ Detalle del dominio: Motor de precios con tarifas configurables por parque
 | reportes | Ventas e ingresos |
 
 ## Ejecutar
-```
-mvn test                 # tests unitarios, de arquitectura y de la API
+Necesita PostgreSQL con una base de datos vacia llamada `ticketing_parques` (Flyway crea las tablas al arrancar).
+
+```powershell
+# PowerShell: las credenciales van en variables de entorno, nunca en el codigo
+$env:DB_PASSWORD = "tu_contrasena"
+# opcionales (valores por defecto): DB_USER=postgres, DB_URL=jdbc:postgresql://localhost:5432/ticketing_parques
+
+mvn test                 # unitarios, arquitectura, persistencia y API (usan H2 en memoria, no tocan tu PostgreSQL)
 mvn spring-boot:run      # levanta la API en http://localhost:8080
 ```
 Ejemplos de peticiones en [docs/api.http](docs/api.http).
 
-## API (por ahora con almacenamiento en memoria)
+## API
 | Metodo | Ruta | Que hace |
 |---|---|---|
 | POST | /api/parques | Registra un parque |

@@ -14,7 +14,8 @@ import com.orlandodiaz.ticketing.ventas.application.RepositorioDeOrdenes;
 import com.orlandodiaz.ticketing.ventas.infrastructure.CupoDeParqueDesdeModuloCatalogo;
 import com.orlandodiaz.ticketing.ventas.infrastructure.PreciosDeEntradaDesdeModuloPrecios;
 import com.orlandodiaz.ticketing.ventas.infrastructure.RelojDelSistema;
-import com.orlandodiaz.ticketing.ventas.infrastructure.RepositorioEnMemoriaDeOrdenes;
+import com.orlandodiaz.ticketing.ventas.infrastructure.persistence.OrdenJpaRepository;
+import com.orlandodiaz.ticketing.ventas.infrastructure.persistence.RepositorioJpaDeOrdenes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,8 +28,8 @@ public class VentasConfig {
     }
 
     @Bean
-    RepositorioDeOrdenes repositorioDeOrdenes() {
-        return new RepositorioEnMemoriaDeOrdenes();
+    RepositorioDeOrdenes repositorioDeOrdenes(OrdenJpaRepository jpa) {
+        return new RepositorioJpaDeOrdenes(jpa);
     }
 
     // Los dos adaptadores que conectan ventas con los otros modulos

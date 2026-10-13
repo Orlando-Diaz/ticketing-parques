@@ -14,12 +14,15 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Levanta la aplicacion de verdad (servidor incluido, en un puerto libre) y la usa por HTTP,
- * como lo haria un cliente. Prueba el sistema completo: controladores, casos de uso, dominio y eventos.
+ * como lo haria un cliente. Prueba el sistema completo: controladores, casos de uso, dominio, eventos
+ * y la base de datos (H2 en memoria con las migraciones reales de Flyway).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 class TicketingApiTest {
 
     private static final String CONFIG_PRECIOS = """

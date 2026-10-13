@@ -6,8 +6,10 @@ import com.orlandodiaz.ticketing.facturacion.application.EmitirFactura;
 import com.orlandodiaz.ticketing.facturacion.application.NumeradorDeFacturas;
 import com.orlandodiaz.ticketing.facturacion.application.RepositorioDeFacturas;
 import com.orlandodiaz.ticketing.facturacion.infrastructure.EscuchaDeEventosDeVentas;
-import com.orlandodiaz.ticketing.facturacion.infrastructure.NumeradorEnMemoria;
-import com.orlandodiaz.ticketing.facturacion.infrastructure.RepositorioEnMemoriaDeFacturas;
+import com.orlandodiaz.ticketing.facturacion.infrastructure.persistence.ConsecutivoJpaRepository;
+import com.orlandodiaz.ticketing.facturacion.infrastructure.persistence.FacturaJpaRepository;
+import com.orlandodiaz.ticketing.facturacion.infrastructure.persistence.NumeradorConConsecutivoEnBaseDeDatos;
+import com.orlandodiaz.ticketing.facturacion.infrastructure.persistence.RepositorioJpaDeFacturas;
 import com.orlandodiaz.ticketing.shared.infrastructure.BusDeEventosEnMemoria;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,13 +18,13 @@ import org.springframework.context.annotation.Configuration;
 public class FacturacionConfig {
 
     @Bean
-    RepositorioDeFacturas repositorioDeFacturas() {
-        return new RepositorioEnMemoriaDeFacturas();
+    RepositorioDeFacturas repositorioDeFacturas(FacturaJpaRepository jpa) {
+        return new RepositorioJpaDeFacturas(jpa);
     }
 
     @Bean
-    NumeradorDeFacturas numeradorDeFacturas() {
-        return new NumeradorEnMemoria();
+    NumeradorDeFacturas numeradorDeFacturas(ConsecutivoJpaRepository jpa) {
+        return new NumeradorConConsecutivoEnBaseDeDatos(jpa);
     }
 
     @Bean

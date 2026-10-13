@@ -2,14 +2,13 @@ package com.orlandodiaz.ticketing.precios.infrastructure.web;
 
 import com.orlandodiaz.ticketing.precios.domain.CategoriaVisitante;
 import com.orlandodiaz.ticketing.precios.domain.ConfiguracionDePrecios;
+import com.orlandodiaz.ticketing.precios.domain.DescripcionDeRegla;
 import com.orlandodiaz.ticketing.precios.domain.EsquemaDeTarifa;
 import com.orlandodiaz.ticketing.precios.domain.ReglaDePrecio;
 import com.orlandodiaz.ticketing.precios.domain.TarifaDeCategoria;
 import com.orlandodiaz.ticketing.precios.domain.TarifaPorCategoria;
 import com.orlandodiaz.ticketing.precios.domain.TarifaUnica;
-import com.orlandodiaz.ticketing.precios.domain.reglas.DescuentoGrupo;
-import com.orlandodiaz.ticketing.precios.domain.reglas.DescuentoResidente;
-import com.orlandodiaz.ticketing.precios.domain.reglas.RecargoFinDeSemana;
+import com.orlandodiaz.ticketing.precios.domain.reglas.FabricaDeReglas;
 import com.orlandodiaz.ticketing.shared.domain.Dinero;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
 import java.util.List;
@@ -58,14 +57,7 @@ public record ConfiguracionDePreciosRequest(EsquemaRequest esquema, List<ReglaRe
     }
 
     private static ReglaDePrecio aRegla(ReglaRequest r) {
-        return switch (String.valueOf(r.tipo())) {
-            case "DESCUENTO_RESIDENTE" -> new DescuentoResidente(requerido(r.porcentaje(), "porcentaje"));
-            case "DESCUENTO_GRUPO" -> new DescuentoGrupo(
-                    requerido(r.tamanoMinimo(), "tamanoMinimo"), requerido(r.porcentaje(), "porcentaje"));
-            case "RECARGO_FIN_DE_SEMANA" -> new RecargoFinDeSemana(requerido(r.porcentaje(), "porcentaje"));
-            default -> throw new IllegalArgumentException("Tipo de regla desconocido: " + r.tipo()
-                    + " (use DESCUENTO_RESIDENTE, DESCUENTO_GRUPO o RECARGO_FIN_DE_SEMANA)");
-        };
+        return FabricaDeReglas.crear(new DescripcionDeRegla(r.tipo(), r.porcentaje(), r.tamanoMinimo()));
     }
 
     private static <T> T requerido(T valor, String campo) {

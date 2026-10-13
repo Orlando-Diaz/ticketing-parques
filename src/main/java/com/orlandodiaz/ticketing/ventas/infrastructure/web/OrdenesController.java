@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/ordenes")
 public class OrdenesController {
 
-    public record VisitanteRequest(Integer edad, boolean residente) {
+    public record VisitanteRequest(Integer edad, Boolean residente) {
     }
 
     public record CompraRequest(String parqueId, LocalDate fechaVisita, List<VisitanteRequest> visitantes) {
@@ -63,7 +63,7 @@ public class OrdenesController {
             if (v.edad() == null) {
                 throw new IllegalArgumentException("Cada visitante necesita su edad");
             }
-            return new Visitante(v.edad(), v.residente());
+            return new Visitante(v.edad(), Boolean.TRUE.equals(v.residente()));
         }).toList();
 
         Orden orden = comprarEntradas.ejecutar(new ComprarEntradasComando(

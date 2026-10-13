@@ -27,8 +27,9 @@ public class Orden {
     private EstadoOrden estado;
     private final List<EventoDeDominio> eventos = new ArrayList<>();
 
-    private Orden(ParqueId parqueId, LocalDate fechaVisita, List<LineaDeOrden> lineas, LocalDateTime creadaEn) {
-        this.id = OrdenId.nuevo();
+    private Orden(OrdenId id, ParqueId parqueId, LocalDate fechaVisita, List<LineaDeOrden> lineas,
+                  LocalDateTime creadaEn, EstadoOrden estado) {
+        this.id = Objects.requireNonNull(id, "El id es obligatorio");
         this.parqueId = Objects.requireNonNull(parqueId, "El parque es obligatorio");
         this.fechaVisita = Objects.requireNonNull(fechaVisita, "La fecha de visita es obligatoria");
         if (lineas == null || lineas.isEmpty()) {
@@ -37,15 +38,24 @@ public class Orden {
         this.lineas = List.copyOf(lineas);
         this.creadaEn = Objects.requireNonNull(creadaEn, "La fecha de creacion es obligatoria");
         this.total = this.lineas.stream().map(LineaDeOrden::precio).reduce(Dinero.CERO, Dinero::sumar);
-        this.estado = EstadoOrden.CONFIRMADA;
+        this.estado = Objects.requireNonNull(estado, "El estado es obligatorio");
     }
 
     public static Orden crear(ParqueId parqueId, LocalDate fechaVisita, List<LineaDeOrden> lineas, LocalDateTime creadaEn) {
         exigirFechaValida(fechaVisita, creadaEn.toLocalDate());
-        Orden orden = new Orden(parqueId, fechaVisita, lineas, creadaEn);
+        Orden orden = new Orden(OrdenId.nuevo(), parqueId, fechaVisita, lineas, creadaEn, EstadoOrden.CONFIRMADA);
         orden.eventos.add(new OrdenConfirmada(
                 orden.id, orden.parqueId, orden.fechaVisita, orden.lineas, orden.total, creadaEn));
         return orden;
+    }
+
+    /**
+     * Para que la persistencia vuelva a armar una orden ya guardada. No valida la fecha (es historia)
+     * ni registra eventos: no esta ocurriendo nada nuevo, solo se esta leyendo.
+     */
+    public static Orden reconstruir(OrdenId id, ParqueId parqueId, LocalDate fechaVisita,
+                                    List<LineaDeOrden> lineas, LocalDateTime creadaEn, EstadoOrden estado) {
+        return new Orden(id, parqueId, fechaVisita, lineas, creadaEn, estado);
     }
 
     /** No se puede comprar para un dia que ya paso (hoy si se puede). */
