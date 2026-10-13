@@ -1,0 +1,56 @@
+### Pruebas manuales de la API (extension "REST Client" de VS Code). Arranca la app con: mvn spring-boot:run
+
+### 1. Registrar un parque
+POST http://localhost:8080/api/parques
+Content-Type: application/json
+
+{ "id": "panaca", "nombre": "Parque de ejemplo", "cupoDiario": 500 }
+
+### 2. Configurar sus precios (por categoria + descuento residente + recargo fin de semana)
+PUT http://localhost:8080/api/parques/panaca/precios
+Content-Type: application/json
+
+{
+  "esquema": {
+    "tipo": "POR_CATEGORIA",
+    "categorias": [
+      { "nombre": "Nino",         "edadMinima": 3,  "edadMaxima": 10, "precio": 25000 },
+      { "nombre": "Adulto",       "edadMinima": 11, "edadMaxima": 59, "precio": 50000 },
+      { "nombre": "Adulto mayor", "edadMinima": 60,                   "precio": 35000 }
+    ]
+  },
+  "reglas": [
+    { "tipo": "DESCUENTO_RESIDENTE",   "porcentaje": 20 },
+    { "tipo": "DESCUENTO_GRUPO",       "tamanoMinimo": 10, "porcentaje": 15 },
+    { "tipo": "RECARGO_FIN_DE_SEMANA", "porcentaje": 10 }
+  ]
+}
+
+### 2b. Alternativa: tarifa unica para todos
+# PUT http://localhost:8080/api/parques/panaca/precios
+# { "esquema": { "tipo": "UNICA", "precio": 40000 }, "reglas": [] }
+
+### 3. Cotizar una entrada
+GET http://localhost:8080/api/parques/panaca/precios/cotizacion?edad=30&residente=true&fecha=2026-12-20
+
+### 4. Ver el cupo de un dia
+GET http://localhost:8080/api/parques/panaca/disponibilidad?fecha=2026-12-20
+
+### 5. Comprar entradas (cambia la fecha por una futura)
+POST http://localhost:8080/api/ordenes
+Content-Type: application/json
+
+{
+  "parqueId": "panaca",
+  "fechaVisita": "2026-12-20",
+  "visitantes": [ { "edad": 8 }, { "edad": 30, "residente": true } ]
+}
+
+### 6. Consultar la orden (pega el id que devolvio la compra)
+GET http://localhost:8080/api/ordenes/PEGA_AQUI_EL_ID
+
+### 7. Ver su factura
+GET http://localhost:8080/api/ordenes/PEGA_AQUI_EL_ID/factura
+
+### 8. Cancelar la orden
+POST http://localhost:8080/api/ordenes/PEGA_AQUI_EL_ID/cancelacion

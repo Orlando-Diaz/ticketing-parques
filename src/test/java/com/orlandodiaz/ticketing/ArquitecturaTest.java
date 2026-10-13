@@ -53,4 +53,11 @@ class ArquitecturaTest {
     static final ArchRule facturacion_solo_conoce_otros_modulos_desde_sus_adaptadores =
             noClasses().that().resideInAnyPackage("..facturacion.domain..", "..facturacion.application..")
                     .should().dependOnClassesThat().resideInAnyPackage("..ventas..", "..precios..", "..catalogo..");
+
+    /** Spring (y cualquier framework) queda fuera de la logica de aplicacion: solo en adaptadores y configuracion. */
+    @ArchTest
+    static final ArchRule la_aplicacion_no_depende_de_spring =
+            noClasses().that().resideInAPackage("..application..")
+                    .should().dependOnClassesThat().resideInAnyPackage("org.springframework..")
+                    .allowEmptyShould(true);
 }

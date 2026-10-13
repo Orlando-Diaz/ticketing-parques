@@ -13,6 +13,9 @@ public class RecargoFinDeSemana implements ReglaDePrecio {
     private final int porcentaje;
 
     public RecargoFinDeSemana(int porcentaje) {
+        if (porcentaje < 0 || porcentaje > 100) {
+            throw new IllegalArgumentException("El porcentaje debe estar entre 0 y 100: " + porcentaje);
+        }
         this.porcentaje = porcentaje;
     }
 

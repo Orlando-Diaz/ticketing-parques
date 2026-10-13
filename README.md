@@ -4,7 +4,9 @@ Sistema de venta de entradas y control de acceso para parques y eventos.
 Proyecto para practicar **principios SOLID** y **arquitectura hexagonal** con Java 21.
 
 ## Estado
-Fase 1 en curso: dominio puro. Motor de precios con tarifas configurables por parque
+Dominio completo (precios, catalogo, ventas, facturacion por eventos) y API REST con Spring Boot. Siguiente: PostgreSQL y concurrencia.
+
+Detalle del dominio: Motor de precios con tarifas configurables por parque
 (tarifa unica o por categoria de visitante) y reglas de ajuste opcionales.
 
 ## Modulos
@@ -17,10 +19,24 @@ Fase 1 en curso: dominio puro. Motor de precios con tarifas configurables por pa
 | facturacion | Facturas a partir de las ventas |
 | reportes | Ventas e ingresos |
 
-## Ejecutar los tests
+## Ejecutar
 ```
-mvn test
+mvn test                 # tests unitarios, de arquitectura y de la API
+mvn spring-boot:run      # levanta la API en http://localhost:8080
 ```
+Ejemplos de peticiones en [docs/api.http](docs/api.http).
+
+## API (por ahora con almacenamiento en memoria)
+| Metodo | Ruta | Que hace |
+|---|---|---|
+| POST | /api/parques | Registra un parque |
+| PUT | /api/parques/{id}/precios | Configura tarifas y reglas del parque |
+| GET | /api/parques/{id}/precios/cotizacion | Cotiza una entrada |
+| GET | /api/parques/{id}/disponibilidad?fecha= | Cupo disponible |
+| POST | /api/ordenes | Compra entradas |
+| GET | /api/ordenes/{id} | Consulta una orden |
+| POST | /api/ordenes/{id}/cancelacion | Cancela una orden |
+| GET | /api/ordenes/{id}/factura | Factura de la orden |
 
 ## Decisiones de arquitectura
 Ver [docs/adr](docs/adr).
