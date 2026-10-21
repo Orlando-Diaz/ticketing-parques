@@ -32,4 +32,4 @@ tiempo.
   puede registrar un ingreso. Pendiente: Spring Security con un rol para el personal de la puerta.
 - La imagen del QR no se genera en el servidor: la API entrega el codigo y el cliente (o una libreria como ZXing,
   mas adelante) lo dibuja.
-- Pendiente: publicar un evento `IngresoRegistrado` para el modulo de reportes (ocupacion en tiempo real).
+- Cada ingreso exitoso publica un evento `IngresoRegistrado` (con su numero dentro del pase) que consume `reportes` (ADR 0006).

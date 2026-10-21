@@ -6,7 +6,7 @@ Sistema de venta de entradas y control de acceso para parques y eventos.
 Proyecto para practicar **principios SOLID** y **arquitectura hexagonal** con Java 21.
 
 ## Estado
-Modulos de precios, catalogo, ventas, facturacion (por eventos) y accesos (pase con QR por compra), con API REST en Spring Boot y persistencia en PostgreSQL (Flyway + JPA). El cupo y las cancelaciones son seguros ante compras simultaneas (bloqueo optimista + reintentos). Cada push corre ~110 tests en GitHub Actions. Siguiente: reportes.
+Modulos de precios, catalogo, ventas, facturacion (por eventos) y accesos (pase con QR por compra), con API REST en Spring Boot y persistencia en PostgreSQL (Flyway + JPA). El cupo y las cancelaciones son seguros ante compras simultaneas (bloqueo optimista + reintentos). Reportes por eventos (modelo de lectura). Cada push corre ~140 tests en GitHub Actions. Siguiente: seguridad (Spring Security) y outbox.
 
 Detalle del dominio: Motor de precios con tarifas configurables por parque
 (tarifa unica o por categoria de visitante) y reglas de ajuste opcionales.
@@ -17,9 +17,9 @@ Detalle del dominio: Motor de precios con tarifas configurables por parque
 | catalogo | Tipos de entrada, fechas y aforo |
 | precios | Motor de reglas de precio (descuentos y recargos) |
 | ventas | Carrito, orden y pago |
-| accesos | QR y validacion en puerta |
+| accesos | Un pase (QR) por compra y validacion en la puerta |
 | facturacion | Facturas a partir de las ventas |
-| reportes | Ventas e ingresos |
+| reportes | Modelo de lectura alimentado por eventos: ventas, cancelaciones e ingresos por dia |
 
 ## Ejecutar
 Necesita PostgreSQL con una base de datos vacia llamada `ticketing_parques` (Flyway crea las tablas al arrancar).
@@ -48,6 +48,8 @@ Ejemplos de peticiones en [docs/api.http](docs/api.http).
 | GET | /api/ordenes/{id}/pase | Pase de la orden (el codigo es el QR) |
 | POST | /api/accesos/ingresos | La puerta escanea el QR y deja entrar a N personas |
 | GET | /api/accesos/pases/{codigo} | Estado de un pase y su historial de ingresos |
+| GET | /api/reportes/parques/{id}/dia?fecha= | Resumen de un dia de visita: ventas, cancelaciones, ingresos |
+| GET | /api/reportes/parques/{id}/rango?desde=&hasta= | Un resumen por cada dia con actividad (maximo 366 dias) |
 
 ## Decisiones de arquitectura
-Ver [docs/adr](docs/adr). Incluye como se evita vender mas entradas que el cupo cuando varios compran a la vez ([ADR 0004](docs/adr/0004-concurrencia-del-cupo-bloqueo-optimista.md)) y el modulo de control de acceso ([ADR 0005](docs/adr/0005-modulo-accesos-un-pase-por-compra.md)).
+Ver [docs/adr](docs/adr). Incluye como se evita vender mas entradas que el cupo cuando varios compran a la vez ([ADR 0004](docs/adr/0004-concurrencia-del-cupo-bloqueo-optimista.md)) el modulo de control de acceso ([ADR 0005](docs/adr/0005-modulo-accesos-un-pase-por-compra.md)) y los reportes ([ADR 0006](docs/adr/0006-reportes-modelo-de-lectura-por-eventos.md)).

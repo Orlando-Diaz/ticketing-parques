@@ -66,3 +66,9 @@ Content-Type: application/json
 
 ### 9. Ver el estado del pase y su historial de ingresos
 GET http://localhost:8080/api/accesos/pases/PEGA_AQUI_EL_CODIGO
+
+### 10. Reporte de un dia de visita (ventas, cancelaciones, quienes ya entraron y quienes faltan)
+GET http://localhost:8080/api/reportes/parques/panaca/dia?fecha=2026-12-20
+
+### 11. Un resumen por cada dia con actividad en un rango
+GET http://localhost:8080/api/reportes/parques/panaca/rango?desde=2026-12-01&hasta=2026-12-31

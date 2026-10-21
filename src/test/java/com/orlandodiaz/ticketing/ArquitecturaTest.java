@@ -73,4 +73,17 @@ class ArquitecturaTest {
             noClasses().that().resideInAnyPackage("..accesos.domain..", "..accesos.application..")
                     .should().dependOnClassesThat()
                     .resideInAnyPackage("..ventas..", "..precios..", "..catalogo..", "..facturacion..");
+
+    /** Ni ventas ni accesos saben que reportes existe: solo publican eventos. */
+    @ArchTest
+    static final ArchRule ventas_y_accesos_no_conocen_reportes =
+            noClasses().that().resideInAnyPackage("..ventas..", "..accesos..")
+                    .should().dependOnClassesThat().resideInAPackage("..reportes..");
+
+    /** Reportes solo conoce a otros modulos en su adaptador que escucha eventos (infrastructure). */
+    @ArchTest
+    static final ArchRule reportes_solo_conoce_otros_modulos_desde_sus_adaptadores =
+            noClasses().that().resideInAnyPackage("..reportes.domain..", "..reportes.application..")
+                    .should().dependOnClassesThat()
+                    .resideInAnyPackage("..ventas..", "..accesos..", "..precios..", "..catalogo..", "..facturacion..");
 }

@@ -3,11 +3,14 @@ package com.orlandodiaz.ticketing.accesos.application;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orlandodiaz.ticketing.accesos.domain.EntradasDelPaseAgotadasException;
+import com.orlandodiaz.ticketing.accesos.domain.IngresoRegistrado;
 import com.orlandodiaz.ticketing.accesos.domain.Pase;
 import com.orlandodiaz.ticketing.accesos.infrastructure.RepositorioEnMemoriaDePases;
+import com.orlandodiaz.ticketing.shared.domain.EventoDeDominio;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -104,7 +107,7 @@ class ValidarIngresoConcurrenteTest {
     void dosPuertasConElMismoQrSoloUnaDejaEntrarAlGrupo() throws Exception {
         var pases = new LecturasSincronizadas(new RepositorioEnMemoriaDePases());
         emitir(pases, 4);
-        var validar = new ValidarIngreso(pases, () -> DIA.atTime(10, 0));
+        var validar = new ValidarIngreso(pases, () -> DIA.atTime(10, 0), evento -> { });
 
         pases.sincronizarLasProximas(2); // las dos puertas leen "quedan 4" antes de guardar
         var resultados = correrJuntos(2, () -> intentarEntrar(validar, "QR-1", 3));
@@ -119,7 +122,8 @@ class ValidarIngresoConcurrenteTest {
     void muchasPuertasALaVezNuncaDejanEntrarMasDeLoComprado() throws Exception {
         var pases = new RepositorioEnMemoriaDePases();
         emitir(pases, 5);
-        var validar = new ValidarIngreso(pases, () -> DIA.atTime(10, 0));
+        List<EventoDeDominio> eventos = Collections.synchronizedList(new ArrayList<>());
+        var validar = new ValidarIngreso(pases, () -> DIA.atTime(10, 0), eventos::add);
 
         var resultados = correrJuntos(20, () -> intentarEntrar(validar, "QR-1", 1));
 
@@ -127,5 +131,9 @@ class ValidarIngresoConcurrenteTest {
         assertThat(resultados).filteredOn(t -> t != null)
                 .allSatisfy(t -> assertThat(t).isInstanceOf(EntradasDelPaseAgotadasException.class));
         assertThat(new ConsultarPase(pases).porCodigo("QR-1").entradasUsadas()).isEqualTo(5);
+        // un evento por ingreso exitoso, y sus numeros son exactamente 0..4 (sin huecos ni repetidos)
+        assertThat(eventos).hasSize(5);
+        assertThat(eventos).extracting(e -> ((IngresoRegistrado) e).numeroDeIngreso())
+                .containsExactlyInAnyOrder(0, 1, 2, 3, 4);
     }
 }

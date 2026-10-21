@@ -1,5 +1,6 @@
 package com.orlandodiaz.ticketing.accesos.domain;
 
+import com.orlandodiaz.ticketing.shared.domain.EventoDeDominio;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,6 +19,9 @@ import java.util.UUID;
  * La {@code version} es el numero de edicion leido del almacen (null = pase nuevo, aun sin guardar). El dominio
  * no la usa para ninguna regla: solo la lleva de ida y vuelta para detectar dos puertas escaneando el mismo
  * QR a la vez (ver ADR 0004).
+ *
+ * Igual que Orden, el pase REGISTRA eventos (IngresoRegistrado) pero no los publica: el caso de uso los recoge
+ * con sacarEventos() y los publica despues de guardar.
  */
 public class Pase {
 
@@ -30,6 +34,7 @@ public class Pase {
     private final LocalDateTime emitidoEn;
     private final List<Ingreso> ingresos;
     private final Long version;
+    private final List<EventoDeDominio> eventos = new ArrayList<>();
     private EstadoPase estado;
 
     private Pase(String id, String codigo, String ordenRef, ParqueId parqueId, LocalDate fechaVisita,
@@ -87,7 +92,17 @@ public class Pase {
         if (personas > entradasRestantes()) {
             throw new EntradasDelPaseAgotadasException(personas, entradasRestantes());
         }
-        ingresos.add(new Ingreso(personas, puerta, ahora));
+        Ingreso ingreso = new Ingreso(personas, puerta, ahora);
+        ingresos.add(ingreso);
+        eventos.add(new IngresoRegistrado(ordenRef, id, parqueId, fechaVisita, ingresos.size() - 1,
+                ingreso.personas(), ingreso.puerta(), ahora));
+    }
+
+    /** Entrega los eventos pendientes de publicar y los borra, para no publicarlos dos veces. */
+    public List<EventoDeDominio> sacarEventos() {
+        List<EventoDeDominio> pendientes = List.copyOf(eventos);
+        eventos.clear();
+        return pendientes;
     }
 
     /** Anula el pase (la compra se cancelo). Anular uno ya anulado no hace nada. */

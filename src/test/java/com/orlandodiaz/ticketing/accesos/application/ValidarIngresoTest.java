@@ -6,9 +6,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.orlandodiaz.ticketing.accesos.domain.EntradasDelPaseAgotadasException;
 import com.orlandodiaz.ticketing.accesos.domain.FechaDePaseIncorrectaException;
 import com.orlandodiaz.ticketing.accesos.infrastructure.RepositorioEnMemoriaDePases;
+import com.orlandodiaz.ticketing.accesos.domain.IngresoRegistrado;
+import com.orlandodiaz.ticketing.shared.domain.EventoDeDominio;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,12 +25,14 @@ class ValidarIngresoTest {
     private AtomicReference<LocalDateTime> ahora;
     private ValidarIngreso validarIngreso;
     private ConsultarPase consultarPase;
+    private List<EventoDeDominio> eventos;
 
     @BeforeEach
     void preparar() {
         pases = new RepositorioEnMemoriaDePases();
         ahora = new AtomicReference<>(DIA.atTime(10, 0));
-        validarIngreso = new ValidarIngreso(pases, ahora::get);
+        eventos = new ArrayList<>();
+        validarIngreso = new ValidarIngreso(pases, ahora::get, eventos::add);
         consultarPase = new ConsultarPase(pases);
         new EmitirPase(pases, () -> "QR-ABC").ejecutar(new EmitirPaseComando(
                 "orden-1", new ParqueId("parque-a"), DIA, 4, DIA.minusDays(3).atTime(9, 0)));
@@ -66,6 +72,33 @@ class ValidarIngresoTest {
 
         assertThatThrownBy(() -> validarIngreso.ejecutar("QR-ABC", 1, null))
                 .isInstanceOf(FechaDePaseIncorrectaException.class);
+    }
+
+    @Test
+    void cadaIngresoExitosoPublicaUnEventoConSuNumero() {
+        validarIngreso.ejecutar("QR-ABC", 2, "norte");
+        validarIngreso.ejecutar("QR-ABC", 1, "sur");
+
+        assertThat(eventos).hasSize(2).allSatisfy(e -> assertThat(e).isInstanceOf(IngresoRegistrado.class));
+        var primero = (IngresoRegistrado) eventos.get(0);
+        var segundo = (IngresoRegistrado) eventos.get(1);
+        assertThat(primero.ordenRef()).isEqualTo("orden-1");
+        assertThat(primero.numeroDeIngreso()).isZero();
+        assertThat(primero.personas()).isEqualTo(2);
+        assertThat(primero.puerta()).isEqualTo("norte");
+        assertThat(segundo.numeroDeIngreso()).isEqualTo(1);
+        assertThat(segundo.puerta()).isEqualTo("sur");
+    }
+
+    @Test
+    void unIngresoRechazadoNoPublicaNada() {
+        validarIngreso.ejecutar("QR-ABC", 4, null);
+        eventos.clear();
+
+        assertThatThrownBy(() -> validarIngreso.ejecutar("QR-ABC", 1, null))
+                .isInstanceOf(EntradasDelPaseAgotadasException.class);
+
+        assertThat(eventos).isEmpty();
     }
 
     @Test

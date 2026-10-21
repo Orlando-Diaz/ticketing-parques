@@ -42,6 +42,35 @@ class PaseTest {
     }
 
     @Test
+    void cadaIngresoRegistraUnEventoYSeEntregaUnaSolaVez() {
+        Pase pase = paseDe(4);
+        pase.registrarIngreso(3, "norte", EL_DIA_A_LAS_10);
+        pase.registrarIngreso(1, null, EL_DIA_A_LAS_10.plusHours(1));
+
+        var eventos = pase.sacarEventos();
+
+        assertThat(eventos).hasSize(2);
+        var segundo = (IngresoRegistrado) eventos.get(1);
+        assertThat(segundo.numeroDeIngreso()).isEqualTo(1);
+        assertThat(segundo.puerta()).isEqualTo("principal");
+        assertThat(segundo.ordenRef()).isEqualTo("orden-1");
+        assertThat(segundo.fechaVisita()).isEqualTo(DIA);
+        assertThat(pase.sacarEventos()).isEmpty(); // ya se entregaron
+    }
+
+    @Test
+    void unIngresoRechazadoNoRegistraEventos() {
+        Pase pase = paseDe(1);
+        pase.registrarIngreso(1, null, EL_DIA_A_LAS_10);
+        pase.sacarEventos();
+
+        assertThatThrownBy(() -> pase.registrarIngreso(1, null, EL_DIA_A_LAS_10))
+                .isInstanceOf(EntradasDelPaseAgotadasException.class);
+
+        assertThat(pase.sacarEventos()).isEmpty();
+    }
+
+    @Test
     void noDejaEntrarMasPersonasQueLasCompradas() {
         Pase pase = paseDe(3);
         pase.registrarIngreso(2, null, EL_DIA_A_LAS_10);
