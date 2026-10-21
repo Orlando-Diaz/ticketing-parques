@@ -26,4 +26,4 @@ Hasta ahora todo vivia en memoria. Hace falta PostgreSQL, sin contaminar el domi
 ## Consecuencias
 - Hay mas clases (entidad + adaptador por cada agregado), a cambio de un dominio limpio.
 - La base tiene un `CHECK (vendidas <= cupo_maximo)` como ultima defensa del cupo.
-- Pendiente: la concurrencia del cupo (dos compras simultaneas) todavia puede vender de mas.
+- La concurrencia del cupo (dos compras simultaneas) se resolvio despues: ver ADR 0004.

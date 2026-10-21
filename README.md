@@ -45,4 +45,4 @@ Ejemplos de peticiones en [docs/api.http](docs/api.http).
 | GET | /api/ordenes/{id}/factura | Factura de la orden |
 
 ## Decisiones de arquitectura
-Ver [docs/adr](docs/adr).
+Ver [docs/adr](docs/adr). Incluye como se evita vender mas entradas que el cupo cuando varios compran a la vez ([ADR 0004](docs/adr/0004-concurrencia-del-cupo-bloqueo-optimista.md)).

@@ -10,6 +10,10 @@ import java.util.Objects;
  *
  * La regla vive aqui adentro (no en un servicio ni en el controlador), asi nadie puede saltarsela:
  * el unico camino para cambiar las vendidas es reservar() o liberar().
+ *
+ * La {@code version} es el "numero de edicion" que se leyo de la base de datos (null = todavia no se ha guardado).
+ * El dominio no la usa para nada: solo la lleva de ida y vuelta para que, al guardar, el adaptador pueda detectar
+ * si alguien mas modifico este mismo cupo mientras tanto (bloqueo optimista, ver ADR 0004).
  */
 public class DisponibilidadDiaria {
 
@@ -17,8 +21,9 @@ public class DisponibilidadDiaria {
     private final LocalDate fecha;
     private int cupoMaximo;
     private int vendidas;
+    private final Long version;
 
-    private DisponibilidadDiaria(ParqueId parqueId, LocalDate fecha, int cupoMaximo, int vendidas) {
+    private DisponibilidadDiaria(ParqueId parqueId, LocalDate fecha, int cupoMaximo, int vendidas, Long version) {
         this.parqueId = Objects.requireNonNull(parqueId, "El parque es obligatorio");
         this.fecha = Objects.requireNonNull(fecha, "La fecha es obligatoria");
         if (cupoMaximo < 0) {
@@ -29,15 +34,17 @@ public class DisponibilidadDiaria {
         }
         this.cupoMaximo = cupoMaximo;
         this.vendidas = vendidas;
+        this.version = version;
     }
 
     public static DisponibilidadDiaria nueva(ParqueId parqueId, LocalDate fecha, int cupoMaximo) {
-        return new DisponibilidadDiaria(parqueId, fecha, cupoMaximo, 0);
+        return new DisponibilidadDiaria(parqueId, fecha, cupoMaximo, 0, null);
     }
 
     /** Para que la capa de persistencia reconstruya una disponibilidad ya guardada. */
-    public static DisponibilidadDiaria reconstruir(ParqueId parqueId, LocalDate fecha, int cupoMaximo, int vendidas) {
-        return new DisponibilidadDiaria(parqueId, fecha, cupoMaximo, vendidas);
+    public static DisponibilidadDiaria reconstruir(ParqueId parqueId, LocalDate fecha, int cupoMaximo, int vendidas,
+                                                   long version) {
+        return new DisponibilidadDiaria(parqueId, fecha, cupoMaximo, vendidas, version);
     }
 
     public void reservar(int cantidad) {
@@ -84,6 +91,11 @@ public class DisponibilidadDiaria {
 
     public int vendidas() {
         return vendidas;
+    }
+
+    /** Edicion leida del almacen; null si esta disponibilidad es nueva y aun no se guardo. */
+    public Long version() {
+        return version;
     }
 
     private static void validarCantidad(int cantidad) {

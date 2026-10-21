@@ -1,5 +1,6 @@
 package com.orlandodiaz.ticketing.configuracion;
 
+import com.orlandodiaz.ticketing.catalogo.application.ConflictoDeConcurrenciaException;
 import com.orlandodiaz.ticketing.catalogo.application.ParqueNoEncontradoException;
 import com.orlandodiaz.ticketing.catalogo.application.ParqueYaExisteException;
 import com.orlandodiaz.ticketing.catalogo.domain.CupoAgotadoException;
@@ -30,6 +31,13 @@ public class ManejadorDeErrores {
     @ExceptionHandler({CupoAgotadoException.class, ParqueYaExisteException.class, OrdenNoCancelableException.class})
     ProblemDetail conflicto(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    /** Hubo tanta competencia por el mismo cupo que se agotaron los reintentos: el cliente puede volver a intentar. */
+    @ExceptionHandler(ConflictoDeConcurrenciaException.class)
+    ProblemDetail demasiadaCompetencia(ConflictoDeConcurrenciaException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "Hay mucha demanda sobre este cupo en este momento. Intenta de nuevo.");
     }
 
     @ExceptionHandler({FechaDeVisitaInvalidaException.class, SinTarifaParaEdadException.class})
