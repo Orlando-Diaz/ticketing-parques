@@ -1,10 +1,12 @@
 # ticketing-parques
 
+[![CI](https://github.com/Orlando-Diaz/ticketing-parques/actions/workflows/ci.yml/badge.svg)](https://github.com/Orlando-Diaz/ticketing-parques/actions/workflows/ci.yml)
+
 Sistema de venta de entradas y control de acceso para parques y eventos.
 Proyecto para practicar **principios SOLID** y **arquitectura hexagonal** con Java 21.
 
 ## Estado
-Dominio completo (precios, catalogo, ventas, facturacion por eventos) y API REST con Spring Boot. Persistencia en PostgreSQL con Flyway y JPA. Siguiente: concurrencia del cupo.
+Modulos de precios, catalogo, ventas, facturacion (por eventos) y accesos (pase con QR por compra), con API REST en Spring Boot y persistencia en PostgreSQL (Flyway + JPA). El cupo y las cancelaciones son seguros ante compras simultaneas (bloqueo optimista + reintentos). Cada push corre ~110 tests en GitHub Actions. Siguiente: reportes.
 
 Detalle del dominio: Motor de precios con tarifas configurables por parque
 (tarifa unica o por categoria de visitante) y reglas de ajuste opcionales.

@@ -1,0 +1,48 @@
+# Integracion continua: en cada push y pull request compila y corre TODOS los tests (unitarios, arquitectura con
+# ArchUnit, persistencia, concurrencia y API). Los tests usan H2 en memoria, asi que no necesitan base de datos
+# ni secretos.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# El workflow solo necesita leer el codigo (principio de minimo privilegio)
+permissions:
+  contents: read
+
+# Si llega un push nuevo a la misma rama, cancela la ejecucion anterior que sigue en curso
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    name: Compilar y probar (Java 21)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      - name: Instalar Java 21 (con cache de Maven)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Compilar y correr los tests
+        run: mvn --batch-mode --no-transfer-progress verify
+
+      # Si algo falla, guarda los reportes para poder ver el detalle sin reproducirlo en tu PC
+      - name: Guardar reportes de los tests (solo si fallan)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes-surefire
+          path: target/surefire-reports
+          retention-days: 7
