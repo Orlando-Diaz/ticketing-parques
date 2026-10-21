@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +36,11 @@ public class OrdenJpaEntity {
 
     @Column(name = "estado", nullable = false)
     private String estado;
+
+    /** Bloqueo optimista: Hibernate lo sube en cada UPDATE. Long (no long): null = fila nueva. */
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "orden_id", nullable = false)
@@ -80,6 +86,10 @@ public class OrdenJpaEntity {
 
     public String getEstado() {
         return estado;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 
     public List<LineaOrdenJpaEntity> getLineas() {

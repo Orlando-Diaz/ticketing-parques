@@ -1,6 +1,6 @@
 package com.orlandodiaz.ticketing.configuracion;
 
-import com.orlandodiaz.ticketing.catalogo.application.ConflictoDeConcurrenciaException;
+import com.orlandodiaz.ticketing.shared.application.ConflictoDeConcurrenciaException;
 import com.orlandodiaz.ticketing.catalogo.application.ParqueNoEncontradoException;
 import com.orlandodiaz.ticketing.catalogo.application.ParqueYaExisteException;
 import com.orlandodiaz.ticketing.catalogo.domain.CupoAgotadoException;

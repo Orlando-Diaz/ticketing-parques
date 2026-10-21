@@ -3,7 +3,7 @@ package com.orlandodiaz.ticketing.persistencia;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.orlandodiaz.ticketing.catalogo.application.ConflictoDeConcurrenciaException;
+import com.orlandodiaz.ticketing.shared.application.ConflictoDeConcurrenciaException;
 import com.orlandodiaz.ticketing.catalogo.application.RepositorioDeDisponibilidad;
 import com.orlandodiaz.ticketing.catalogo.application.RepositorioDeParques;
 import com.orlandodiaz.ticketing.catalogo.application.ReservarCupo;

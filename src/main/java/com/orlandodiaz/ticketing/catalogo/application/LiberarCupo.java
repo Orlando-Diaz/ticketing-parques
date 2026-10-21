@@ -1,5 +1,6 @@
 package com.orlandodiaz.ticketing.catalogo.application;
 
+import com.orlandodiaz.ticketing.shared.application.ReintentoPorConflicto;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
 import java.time.LocalDate;
 

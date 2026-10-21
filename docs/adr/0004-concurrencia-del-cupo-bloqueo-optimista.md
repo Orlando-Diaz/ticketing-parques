@@ -39,6 +39,17 @@ tiempo, ambos leian "queda 1", ambos reservaban con exito y el segundo guardado 
   (determinista, sin depender de la suerte del reloj).
 - `ConcurrenciaCupoJpaTest`: 20 hilos contra 5 entradas sobre la base real (H2 + Flyway); contrato del
   repositorio (version vieja rechazada, doble creacion rechazada) y el `CHECK` como ultima defensa.
+- `CancelarOrdenConcurrenteTest` y `ConcurrenciaOrdenJpaTest`: las cancelaciones simultaneas de una orden
+  (barrera determinista, 20 hilos en memoria y 10 hilos contra la base) devuelven el cupo una sola vez.
 
-## Pendiente relacionado
-- Cancelar la misma orden dos veces a la vez puede liberar el cupo dos veces (la orden no tiene version).
+## Extension: cancelar la misma orden dos veces a la vez
+Tenia el mismo problema: las dos cancelaciones leian CONFIRMADA y las dos devolvian el cupo. Se aplico el mismo
+patron (migracion V3, `Orden.version`, `@Version` en `OrdenJpaEntity`) y ademas se **cambio el orden de los
+pasos** de `CancelarOrden`: primero se cancela y se GUARDA la orden (ahi se decide quien gana), y solo quien
+gana devuelve el cupo. El perdedor recibe un conflicto, vuelve a leer, ve la orden CANCELADA y falla con
+`OrdenNoCancelableException`. Por eso `ConflictoDeConcurrenciaException` y `ReintentoPorConflicto` pasaron a
+`shared.application` (los usan catalogo y ventas, que no deben conocerse).
+
+Riesgo conocido: si la devolucion del cupo falla despues de guardar, la orden queda cancelada con el cupo aun
+ocupado. Es el lado seguro (nunca se vende de mas). La solucion de fondo es el patron outbox (publicar el
+evento y reintentar la devolucion hasta lograrla).

@@ -15,6 +15,10 @@ import java.util.Objects;
  *
  * Cuando algo importante pasa, la orden REGISTRA un evento. No lo publica ella (no conoce el bus):
  * el caso de uso lo recoge con sacarEventos() y lo publica despues de guardar.
+ *
+ * La {@code version} es el "numero de edicion" leido del almacen (null = orden nueva, aun sin guardar).
+ * El dominio no la usa para ninguna regla: solo la lleva de ida y vuelta para que el adaptador detecte si
+ * alguien mas modifico esta orden mientras tanto (ver ADR 0004).
  */
 public class Orden {
 
@@ -25,10 +29,11 @@ public class Orden {
     private final LocalDateTime creadaEn;
     private final Dinero total;
     private EstadoOrden estado;
+    private final Long version;
     private final List<EventoDeDominio> eventos = new ArrayList<>();
 
     private Orden(OrdenId id, ParqueId parqueId, LocalDate fechaVisita, List<LineaDeOrden> lineas,
-                  LocalDateTime creadaEn, EstadoOrden estado) {
+                  LocalDateTime creadaEn, EstadoOrden estado, Long version) {
         this.id = Objects.requireNonNull(id, "El id es obligatorio");
         this.parqueId = Objects.requireNonNull(parqueId, "El parque es obligatorio");
         this.fechaVisita = Objects.requireNonNull(fechaVisita, "La fecha de visita es obligatoria");
@@ -39,11 +44,12 @@ public class Orden {
         this.creadaEn = Objects.requireNonNull(creadaEn, "La fecha de creacion es obligatoria");
         this.total = this.lineas.stream().map(LineaDeOrden::precio).reduce(Dinero.CERO, Dinero::sumar);
         this.estado = Objects.requireNonNull(estado, "El estado es obligatorio");
+        this.version = version;
     }
 
     public static Orden crear(ParqueId parqueId, LocalDate fechaVisita, List<LineaDeOrden> lineas, LocalDateTime creadaEn) {
         exigirFechaValida(fechaVisita, creadaEn.toLocalDate());
-        Orden orden = new Orden(OrdenId.nuevo(), parqueId, fechaVisita, lineas, creadaEn, EstadoOrden.CONFIRMADA);
+        Orden orden = new Orden(OrdenId.nuevo(), parqueId, fechaVisita, lineas, creadaEn, EstadoOrden.CONFIRMADA, null);
         orden.eventos.add(new OrdenConfirmada(
                 orden.id, orden.parqueId, orden.fechaVisita, orden.lineas, orden.total, creadaEn));
         return orden;
@@ -54,8 +60,9 @@ public class Orden {
      * ni registra eventos: no esta ocurriendo nada nuevo, solo se esta leyendo.
      */
     public static Orden reconstruir(OrdenId id, ParqueId parqueId, LocalDate fechaVisita,
-                                    List<LineaDeOrden> lineas, LocalDateTime creadaEn, EstadoOrden estado) {
-        return new Orden(id, parqueId, fechaVisita, lineas, creadaEn, estado);
+                                    List<LineaDeOrden> lineas, LocalDateTime creadaEn, EstadoOrden estado,
+                                    long version) {
+        return new Orden(id, parqueId, fechaVisita, lineas, creadaEn, estado, version);
     }
 
     /** No se puede comprar para un dia que ya paso (hoy si se puede). */
@@ -113,5 +120,10 @@ public class Orden {
 
     public EstadoOrden estado() {
         return estado;
+    }
+
+    /** Edicion leida del almacen; null si la orden es nueva y aun no se guardo. */
+    public Long version() {
+        return version;
     }
 }

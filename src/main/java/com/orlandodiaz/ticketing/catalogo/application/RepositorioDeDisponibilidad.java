@@ -1,6 +1,7 @@
 package com.orlandodiaz.ticketing.catalogo.application;
 
 import com.orlandodiaz.ticketing.catalogo.domain.DisponibilidadDiaria;
+import com.orlandodiaz.ticketing.shared.application.ConflictoDeConcurrenciaException;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
 import java.time.LocalDate;
 import java.util.Optional;
