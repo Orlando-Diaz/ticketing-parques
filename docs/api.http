@@ -54,3 +54,15 @@ GET http://localhost:8080/api/ordenes/PEGA_AQUI_EL_ID/factura
 
 ### 8. Cancelar la orden
 POST http://localhost:8080/api/ordenes/PEGA_AQUI_EL_ID/cancelacion
+
+### 7. Pase de la orden: el "codigo" es lo que va en el QR (la visita debe ser HOY para poder entrar)
+GET http://localhost:8080/api/ordenes/PEGA_AQUI_EL_ID/pase
+
+### 8. En la puerta: escanear el QR y dejar entrar a 2 personas
+POST http://localhost:8080/api/accesos/ingresos
+Content-Type: application/json
+
+{ "codigo": "PEGA_AQUI_EL_CODIGO", "personas": 2, "puerta": "norte" }
+
+### 9. Ver el estado del pase y su historial de ingresos
+GET http://localhost:8080/api/accesos/pases/PEGA_AQUI_EL_CODIGO

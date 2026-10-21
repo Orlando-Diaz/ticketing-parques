@@ -43,6 +43,9 @@ Ejemplos de peticiones en [docs/api.http](docs/api.http).
 | GET | /api/ordenes/{id} | Consulta una orden |
 | POST | /api/ordenes/{id}/cancelacion | Cancela una orden |
 | GET | /api/ordenes/{id}/factura | Factura de la orden |
+| GET | /api/ordenes/{id}/pase | Pase de la orden (el codigo es el QR) |
+| POST | /api/accesos/ingresos | La puerta escanea el QR y deja entrar a N personas |
+| GET | /api/accesos/pases/{codigo} | Estado de un pase y su historial de ingresos |
 
 ## Decisiones de arquitectura
-Ver [docs/adr](docs/adr). Incluye como se evita vender mas entradas que el cupo cuando varios compran a la vez ([ADR 0004](docs/adr/0004-concurrencia-del-cupo-bloqueo-optimista.md)).
+Ver [docs/adr](docs/adr). Incluye como se evita vender mas entradas que el cupo cuando varios compran a la vez ([ADR 0004](docs/adr/0004-concurrencia-del-cupo-bloqueo-optimista.md)) y el modulo de control de acceso ([ADR 0005](docs/adr/0005-modulo-accesos-un-pase-por-compra.md)).

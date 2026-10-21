@@ -60,4 +60,17 @@ class ArquitecturaTest {
             noClasses().that().resideInAPackage("..application..")
                     .should().dependOnClassesThat().resideInAnyPackage("org.springframework..")
                     .allowEmptyShould(true);
+
+    /** Ventas publica eventos pero no sabe que accesos existe. */
+    @ArchTest
+    static final ArchRule ventas_no_conoce_accesos =
+            noClasses().that().resideInAPackage("..ventas..")
+                    .should().dependOnClassesThat().resideInAPackage("..accesos..");
+
+    /** Accesos solo conoce a ventas en su adaptador que escucha eventos (infrastructure). */
+    @ArchTest
+    static final ArchRule accesos_solo_conoce_otros_modulos_desde_sus_adaptadores =
+            noClasses().that().resideInAnyPackage("..accesos.domain..", "..accesos.application..")
+                    .should().dependOnClassesThat()
+                    .resideInAnyPackage("..ventas..", "..precios..", "..catalogo..", "..facturacion..");
 }
