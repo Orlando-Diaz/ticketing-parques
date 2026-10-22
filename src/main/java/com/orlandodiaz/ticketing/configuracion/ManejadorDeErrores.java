@@ -10,6 +10,8 @@ import com.orlandodiaz.ticketing.catalogo.domain.CupoAgotadoException;
 import com.orlandodiaz.ticketing.facturacion.application.FacturaNoEncontradaException;
 import com.orlandodiaz.ticketing.precios.application.ParqueSinConfiguracionDePreciosException;
 import com.orlandodiaz.ticketing.precios.domain.SinTarifaParaEdadException;
+import com.orlandodiaz.ticketing.seguridad.application.CredencialesInvalidasException;
+import com.orlandodiaz.ticketing.seguridad.application.UsuarioYaExisteException;
 import com.orlandodiaz.ticketing.shared.application.ConflictoDeConcurrenciaException;
 import com.orlandodiaz.ticketing.ventas.application.OrdenNoEncontradaException;
 import com.orlandodiaz.ticketing.ventas.domain.FechaDeVisitaInvalidaException;
@@ -34,7 +36,7 @@ public class ManejadorDeErrores {
     }
 
     @ExceptionHandler({CupoAgotadoException.class, ParqueYaExisteException.class, OrdenNoCancelableException.class,
-            PaseAnuladoException.class, EntradasDelPaseAgotadasException.class})
+            PaseAnuladoException.class, EntradasDelPaseAgotadasException.class, UsuarioYaExisteException.class})
     ProblemDetail conflicto(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
     }
@@ -50,6 +52,11 @@ public class ManejadorDeErrores {
             FechaDePaseIncorrectaException.class})
     ProblemDetail noProcesable(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(422), e.getMessage());
+    }
+
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    ProblemDetail credencialesInvalidas(CredencialesInvalidasException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

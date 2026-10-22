@@ -11,3 +11,8 @@ spring:
 ticketing:
   outbox:
     programador-activo: false
+  # Valores SOLO de pruebas (la base es H2 en memoria; no protegen nada real).
+  seguridad:
+    jwt-secreto: secreto-solo-para-pruebas-0123456789-abcdefghij
+    admin-usuario: admin
+    admin-clave: clave-de-pruebas-123

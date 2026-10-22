@@ -1,13 +1,30 @@
-### Pruebas manuales de la API (extension "REST Client" de VS Code). Arranca la app con: mvn spring-boot:run
+### Pruebas manuales de la API (extension "REST Client" de VS Code).
+### Arranca la app con las variables de entorno (ver README): DB_PASSWORD, JWT_SECRET y ADMIN_PASSWORD.
+
+### 0. Iniciar sesion como administrador (las rutas protegidas usan este token automaticamente)
+# @name login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{ "usuario": "admin", "clave": "LA_CLAVE_QUE_PUSISTE_EN_ADMIN_PASSWORD" }
+
+### 0b. Crear un usuario para la puerta (solo ADMIN). Luego inicia sesion con el para validar QR.
+POST http://localhost:8080/api/usuarios
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "nombre": "puerta-norte", "clave": "una-clave-larga-1", "rol": "PUERTA" }
 
 ### 1. Registrar un parque
 POST http://localhost:8080/api/parques
+Authorization: Bearer {{login.response.body.token}}
 Content-Type: application/json
 
 { "id": "panaca", "nombre": "Parque de ejemplo", "cupoDiario": 500 }
 
 ### 2. Configurar sus precios (por categoria + descuento residente + recargo fin de semana)
 PUT http://localhost:8080/api/parques/panaca/precios
+Authorization: Bearer {{login.response.body.token}}
 Content-Type: application/json
 
 {
@@ -60,15 +77,19 @@ GET http://localhost:8080/api/ordenes/PEGA_AQUI_EL_ID/pase
 
 ### 8. En la puerta: escanear el QR y dejar entrar a 2 personas
 POST http://localhost:8080/api/accesos/ingresos
+Authorization: Bearer {{login.response.body.token}}
 Content-Type: application/json
 
 { "codigo": "PEGA_AQUI_EL_CODIGO", "personas": 2, "puerta": "norte" }
 
 ### 9. Ver el estado del pase y su historial de ingresos
 GET http://localhost:8080/api/accesos/pases/PEGA_AQUI_EL_CODIGO
+Authorization: Bearer {{login.response.body.token}}
 
 ### 10. Reporte de un dia de visita (ventas, cancelaciones, quienes ya entraron y quienes faltan)
 GET http://localhost:8080/api/reportes/parques/panaca/dia?fecha=2026-12-20
+Authorization: Bearer {{login.response.body.token}}
 
 ### 11. Un resumen por cada dia con actividad en un rango
 GET http://localhost:8080/api/reportes/parques/panaca/rango?desde=2026-12-01&hasta=2026-12-31
+Authorization: Bearer {{login.response.body.token}}

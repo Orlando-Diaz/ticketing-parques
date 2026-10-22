@@ -31,7 +31,8 @@ class ReportesApiTest {
 
     private HttpResponse<String> llamar(String metodo, String ruta, String cuerpo) throws IOException, InterruptedException {
         HttpRequest.Builder b = HttpRequest.newBuilder(URI.create("http://localhost:" + puerto + ruta))
-                .header("Content-Type", "application/json");
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + TokenDePruebas.de("admin", "clave-de-pruebas-123", puerto));
         b.method(metodo, cuerpo == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(cuerpo));
         return http.send(b.build(), HttpResponse.BodyHandlers.ofString());
     }

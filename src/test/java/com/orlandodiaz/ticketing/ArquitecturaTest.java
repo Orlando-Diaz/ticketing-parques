@@ -80,6 +80,19 @@ class ArquitecturaTest {
             noClasses().that().resideInAnyPackage("..ventas..", "..accesos..")
                     .should().dependOnClassesThat().resideInAPackage("..reportes..");
 
+    @ArchTest
+    static final ArchRule seguridad_no_conoce_el_negocio =
+            noClasses().that().resideInAPackage("..seguridad..")
+                    .should().dependOnClassesThat()
+                    .resideInAnyPackage("..ventas..", "..accesos..", "..precios..", "..catalogo..", "..facturacion..",
+                            "..reportes..");
+
+    @ArchTest
+    static final ArchRule el_negocio_no_conoce_seguridad =
+            noClasses().that().resideInAnyPackage("..ventas..", "..accesos..", "..precios..", "..catalogo..",
+                            "..facturacion..", "..reportes..")
+                    .should().dependOnClassesThat().resideInAPackage("..seguridad..");
+
     /** Reportes solo conoce a otros modulos en su adaptador que escucha eventos (infrastructure). */
     @ArchTest
     static final ArchRule reportes_solo_conoce_otros_modulos_desde_sus_adaptadores =

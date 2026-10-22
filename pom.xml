@@ -28,6 +28,16 @@
       <artifactId>spring-boot-starter-webmvc</artifactId>
     </dependency>
 
+    <!-- Seguridad: Spring Security + validacion de JWT (resource server). La clave secreta viene de JWT_SECRET. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+    </dependency>
+
     <!-- Persistencia: JPA/Hibernate + migraciones Flyway + PostgreSQL -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

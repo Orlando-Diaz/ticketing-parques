@@ -14,5 +14,14 @@ spring:
     hibernate:
       ddl-auto: validate   # Hibernate NO crea tablas: solo verifica que coincidan con las migraciones de Flyway
 
+ticketing:
+  seguridad:
+    # Sin valor por defecto a proposito (como DB_PASSWORD): al menos 32 caracteres aleatorios.
+    jwt-secreto: ${JWT_SECRET}
+    token-minutos: 60
+    # El administrador inicial se crea al arrancar solo si defines ADMIN_PASSWORD (min. 10 caracteres).
+    admin-usuario: ${ADMIN_USER:admin}
+    admin-clave: ${ADMIN_PASSWORD:}
+
 server:
   port: 8080
