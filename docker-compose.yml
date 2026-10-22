@@ -1,0 +1,35 @@
+# Levanta TODO con un comando:  docker compose up --build
+# Lee las credenciales del archivo .env (copia .env.example a .env y ponle tus valores; .env no se sube a Git).
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ticketing_parques
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en el archivo .env}
+    volumes:
+      - datos-postgres:/var/lib/postgresql   # los datos sobreviven aunque borres el contenedor
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ticketing_parques"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # Sin "ports": la base solo es visible para la app dentro de la red de Docker, no desde tu maquina.
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy   # la app espera a que PostgreSQL acepte conexiones
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/ticketing_parques
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en el archivo .env}
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en el archivo .env (minimo 32 caracteres)}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Define ADMIN_PASSWORD en el archivo .env (minimo 10 caracteres)}
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  datos-postgres:

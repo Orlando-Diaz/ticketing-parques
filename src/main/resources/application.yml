@@ -5,7 +5,8 @@ spring:
   # Las credenciales NUNCA van en el codigo: se leen de variables de entorno.
   # DB_PASSWORD no tiene valor por defecto a proposito: si falta, la app no arranca y te lo dice.
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/ticketing_parques}
+    # DB_URL completa (local/Docker) o, si no esta, se arma con DB_HOST, DB_PORT y DB_NAME (como los entrega Render)
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ticketing_parques}}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD}
 
@@ -24,4 +25,4 @@ ticketing:
     admin-clave: ${ADMIN_PASSWORD:}
 
 server:
-  port: 8080
+  port: ${PORT:8080}   # las plataformas (Render, Railway...) indican el puerto con la variable PORT

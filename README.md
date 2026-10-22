@@ -111,6 +111,24 @@ $env:ADMIN_PASSWORD = "clave-de-admin-de-10+-caracteres"             # crea al u
 mvn test                 # H2 en memoria; con Docker en marcha tambien contra PostgreSQL real
 mvn spring-boot:run      # API en http://localhost:8080
 ```
+
+### Con Docker (un solo comando)
+No necesitas instalar Java ni PostgreSQL, solo Docker.
+
+```powershell
+copy .env.example .env      # y edita .env con tus valores (el archivo .env nunca se sube a Git)
+docker compose up --build   # compila, levanta PostgreSQL y la API en http://localhost:8080
+```
+La base de datos queda dentro de la red de Docker (no se expone en tu maquina) y sus datos se conservan en un volumen. Para apagar todo: `docker compose down` (con `-v` tambien borra los datos).
+
+### Desplegar en Render
+El archivo [render.yaml](render.yaml) describe todo (la API con el Dockerfile y una base PostgreSQL):
+1. Sube el repo a GitHub y en Render elige **New > Blueprint**, apuntando al repo.
+2. Render te pide `ADMIN_PASSWORD` (la clave del usuario `admin`); `JWT_SECRET` lo genera solo y la conexion a la base se configura sola.
+3. Al terminar, la API queda en `https://<tu-servicio>.onrender.com`. Usa esa URL en lugar de `localhost:8080` en `docs/api.http`.
+
+Con los planes gratuitos, la API se duerme tras un rato sin trafico (la primera peticion tarda en despertarla) y la base gratuita caduca a los 30 dias. Sirve para mostrar el proyecto, no para uso real.
+
 Ejemplos de peticiones (con login incluido) en [docs/api.http](docs/api.http).
 
 ## API

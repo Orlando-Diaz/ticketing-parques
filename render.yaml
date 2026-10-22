@@ -1,0 +1,42 @@
+# Blueprint de Render: crea la base PostgreSQL y la API (construida con el Dockerfile) con un solo clic.
+# Los secretos no estan aqui: JWT_SECRET lo genera Render y ADMIN_PASSWORD te la pide al crear el servicio.
+databases:
+  - name: ticketing-db
+    databaseName: ticketing_parques
+    user: ticketing
+    plan: free
+
+services:
+  - type: web
+    name: ticketing-parques
+    runtime: docker
+    plan: free
+    envVars:
+      # La conexion a la base la entrega Render; la app arma la URL con estas piezas (ver application.yml)
+      - key: DB_HOST
+        fromDatabase:
+          name: ticketing-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ticketing-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: ticketing-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: ticketing-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ticketing-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false          # Render te la pide al crear el Blueprint; no queda en el repositorio
+      # El plan gratuito tiene 512 MB: se limita la memoria de la JVM para que no la maten por exceso
+      - key: JAVA_TOOL_OPTIONS
+        value: "-XX:MaxRAMPercentage=55 -XX:+UseSerialGC"
