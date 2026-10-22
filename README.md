@@ -6,7 +6,7 @@ Sistema de venta de entradas y control de acceso para parques y eventos.
 Proyecto para practicar **principios SOLID** y **arquitectura hexagonal** con Java 21.
 
 ## Estado
-Modulos de precios, catalogo, ventas, facturacion (por eventos) y accesos (pase con QR por compra), con API REST en Spring Boot y persistencia en PostgreSQL (Flyway + JPA). El cupo y las cancelaciones son seguros ante compras simultaneas (bloqueo optimista + reintentos). Reportes por eventos (modelo de lectura). Cada push corre ~140 tests en GitHub Actions. Siguiente: seguridad (Spring Security) y outbox.
+Modulos de precios, catalogo, ventas, facturacion (por eventos) y accesos (pase con QR por compra), con API REST en Spring Boot y persistencia en PostgreSQL (Flyway + JPA). El cupo y las cancelaciones son seguros ante compras simultaneas (bloqueo optimista + reintentos). Reportes por eventos (modelo de lectura). Los eventos se entregan con el patron outbox (no se pierden si el proceso se cae). Cada push corre ~150 tests en GitHub Actions. Siguiente: seguridad (Spring Security).
 
 Detalle del dominio: Motor de precios con tarifas configurables por parque
 (tarifa unica o por categoria de visitante) y reglas de ajuste opcionales.

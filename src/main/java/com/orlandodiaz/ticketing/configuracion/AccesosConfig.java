@@ -11,6 +11,7 @@ import com.orlandodiaz.ticketing.accesos.infrastructure.EscuchaDeEventosDeVentas
 import com.orlandodiaz.ticketing.accesos.infrastructure.GeneradorDeCodigosSeguro;
 import com.orlandodiaz.ticketing.accesos.infrastructure.persistence.PaseJpaRepository;
 import com.orlandodiaz.ticketing.accesos.infrastructure.persistence.RepositorioJpaDePases;
+import com.orlandodiaz.ticketing.shared.application.EjecutorTransaccional;
 import com.orlandodiaz.ticketing.shared.application.PublicadorDeEventos;
 import com.orlandodiaz.ticketing.shared.infrastructure.BusDeEventosEnMemoria;
 import java.time.LocalDateTime;
@@ -48,8 +49,9 @@ public class AccesosConfig {
     }
 
     @Bean
-    ValidarIngreso validarIngreso(RepositorioDePases pases, Reloj relojDeAccesos, PublicadorDeEventos eventos) {
-        return new ValidarIngreso(pases, relojDeAccesos, eventos);
+    ValidarIngreso validarIngreso(RepositorioDePases pases, Reloj relojDeAccesos, PublicadorDeEventos eventos,
+                                  EjecutorTransaccional transaccion) {
+        return new ValidarIngreso(pases, relojDeAccesos, eventos, transaccion);
     }
 
     @Bean

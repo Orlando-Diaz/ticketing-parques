@@ -1,6 +1,7 @@
 package com.orlandodiaz.ticketing.shared.infrastructure;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.orlandodiaz.ticketing.shared.domain.EventoDeDominio;
 import java.time.LocalDateTime;
@@ -51,5 +52,28 @@ class BusDeEventosEnMemoriaTest {
 
         assertThat(recibidos).containsExactly("hola");
         assertThat(errores).containsExactly("fallo el primero");
+    }
+
+    @Test
+    void entregarEsEstrictoPeroTodosRecibenElEvento() {
+        var bus = new BusDeEventosEnMemoria();
+        List<String> recibidos = new ArrayList<>();
+        bus.suscribir(EventoA.class, e -> {
+            throw new IllegalStateException("fallo el primero");
+        });
+        bus.suscribir(EventoA.class, e -> recibidos.add(e.texto()));
+
+        assertThatThrownBy(() -> bus.entregar(new EventoA("hola", AHORA)))
+                .isInstanceOf(FalloDeEntregaDeEventoException.class)
+                .hasRootCauseMessage("fallo el primero");
+        assertThat(recibidos).containsExactly("hola"); // el segundo recibio igual
+    }
+
+    @Test
+    void entregarSinFallosNoLanzaNada() {
+        var bus = new BusDeEventosEnMemoria();
+        bus.suscribir(EventoA.class, e -> { });
+
+        bus.entregar(new EventoA("hola", AHORA));
     }
 }

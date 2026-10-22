@@ -3,6 +3,7 @@ package com.orlandodiaz.ticketing.configuracion;
 import com.orlandodiaz.ticketing.catalogo.application.LiberarCupo;
 import com.orlandodiaz.ticketing.catalogo.application.ReservarCupo;
 import com.orlandodiaz.ticketing.precios.application.CalcularPrecioDeEntrada;
+import com.orlandodiaz.ticketing.shared.application.EjecutorTransaccional;
 import com.orlandodiaz.ticketing.shared.application.PublicadorDeEventos;
 import com.orlandodiaz.ticketing.ventas.application.CancelarOrden;
 import com.orlandodiaz.ticketing.ventas.application.ComprarEntradas;
@@ -45,14 +46,15 @@ public class VentasConfig {
 
     @Bean
     ComprarEntradas comprarEntradas(PreciosDeEntrada precios, CupoDeParque cupo, RepositorioDeOrdenes ordenes,
-                                    Reloj reloj, PublicadorDeEventos eventos) {
-        return new ComprarEntradas(precios, cupo, ordenes, reloj, eventos);
+                                    Reloj reloj, PublicadorDeEventos eventos,
+                                    EjecutorTransaccional transaccion) {
+        return new ComprarEntradas(precios, cupo, ordenes, reloj, eventos, transaccion);
     }
 
     @Bean
     CancelarOrden cancelarOrden(RepositorioDeOrdenes ordenes, CupoDeParque cupo, Reloj reloj,
-                                PublicadorDeEventos eventos) {
-        return new CancelarOrden(ordenes, cupo, reloj, eventos);
+                                PublicadorDeEventos eventos, EjecutorTransaccional transaccion) {
+        return new CancelarOrden(ordenes, cupo, reloj, eventos, transaccion);
     }
 
     @Bean

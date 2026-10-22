@@ -13,6 +13,7 @@ import com.orlandodiaz.ticketing.precios.domain.TarifaDeCategoria;
 import com.orlandodiaz.ticketing.precios.domain.TarifaPorCategoria;
 import com.orlandodiaz.ticketing.precios.domain.TarifaUnica;
 import com.orlandodiaz.ticketing.precios.infrastructure.RepositorioEnMemoriaDeConfiguracionDePrecios;
+import com.orlandodiaz.ticketing.shared.application.EjecutorTransaccional;
 import com.orlandodiaz.ticketing.shared.application.PublicadorDeEventos;
 import com.orlandodiaz.ticketing.shared.domain.Dinero;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
@@ -44,6 +45,10 @@ public class Escenario {
     }
 
     public Escenario(RepositorioDeOrdenes ordenes, PublicadorDeEventos eventos) {
+        this(ordenes, eventos, EjecutorTransaccional.SIN_TRANSACCION);
+    }
+
+    public Escenario(RepositorioDeOrdenes ordenes, PublicadorDeEventos eventos, EjecutorTransaccional transaccion) {
         var parques = new RepositorioEnMemoriaDeParques();
         var disponibilidades = new RepositorioEnMemoriaDeDisponibilidad();
         parques.guardar(new Parque(PARQUE_A, "Parque A", 100));
@@ -63,8 +68,8 @@ public class Escenario {
                 new ReservarCupo(parques, disponibilidades), new LiberarCupo(disponibilidades));
         Reloj reloj = () -> AHORA;
 
-        this.comprar = new ComprarEntradas(precios, cupo, ordenes, reloj, eventos);
-        this.cancelar = new CancelarOrden(ordenes, cupo, reloj, eventos);
+        this.comprar = new ComprarEntradas(precios, cupo, ordenes, reloj, eventos, transaccion);
+        this.cancelar = new CancelarOrden(ordenes, cupo, reloj, eventos, transaccion);
         this.consultarCupo = new ConsultarCupoDisponible(parques, disponibilidades);
     }
 }

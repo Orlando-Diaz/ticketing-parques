@@ -44,4 +44,27 @@ public class BusDeEventosEnMemoria implements PublicadorDeEventos {
             }
         }
     }
+
+    /**
+     * Entrega ESTRICTA, para quien puede reintentar (el despachador del outbox): todos los suscriptores reciben el
+     * evento aunque alguno falle, y al final, si hubo fallos, se lanza {@link FalloDeEntregaDeEventoException}.
+     * Como los suscriptores son idempotentes, volver a entregar el evento a los que ya lo procesaron es seguro.
+     */
+    public void entregar(EventoDeDominio evento) {
+        FalloDeEntregaDeEventoException fallo = null;
+        for (Consumer<EventoDeDominio> manejador : manejadores.getOrDefault(evento.getClass(), List.of())) {
+            try {
+                manejador.accept(evento);
+            } catch (RuntimeException e) {
+                if (fallo == null) {
+                    fallo = new FalloDeEntregaDeEventoException(evento, e);
+                } else {
+                    fallo.addSuppressed(e);
+                }
+            }
+        }
+        if (fallo != null) {
+            throw fallo;
+        }
+    }
 }

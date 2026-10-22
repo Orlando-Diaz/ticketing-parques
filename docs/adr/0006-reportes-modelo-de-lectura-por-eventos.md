@@ -34,3 +34,5 @@ acoplaria los reportes a su estructura interna.
   en SQL (`GROUP BY`) o precalcular resumenes.
 - Un `OrdenCancelada` que llegara antes que su `OrdenConfirmada` se ignoraria (el bus actual entrega en orden).
 - "Ocupacion en tiempo real" hoy significa personas que **han ingresado** en el dia; no se registran salidas.
+
+> Actualizacion: el hueco de "evento perdido si el proceso muere" se cerro con el outbox (ADR 0007).

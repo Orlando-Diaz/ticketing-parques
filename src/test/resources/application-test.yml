@@ -5,3 +5,9 @@ spring:
     url: jdbc:h2:mem:ticketing;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     username: sa
     password: ""
+
+# El programador del outbox se apaga en los tests: la entrega inmediata tras confirmar la transaccion basta,
+# y asi cada test decide cuando llamar al despachador.
+ticketing:
+  outbox:
+    programador-activo: false
