@@ -31,7 +31,9 @@ $env:JWT_SECRET = "una-cadena-aleatoria-de-al-menos-32-caracteres"   # firma los
 $env:ADMIN_PASSWORD = "clave-de-admin-de-10+-caracteres"       # crea al usuario "admin" la primera vez
 # opcionales (valores por defecto): DB_USER=postgres, DB_URL=jdbc:postgresql://localhost:5432/ticketing_parques
 
-mvn test                 # unitarios, arquitectura, persistencia y API (usan H2 en memoria, no tocan tu PostgreSQL)
+mvn test                 # unitarios, arquitectura, persistencia y API (H2 en memoria; no tocan tu PostgreSQL).
+                         # Con Docker en marcha, los tests de base de datos y API se repiten ademas contra un
+                         # PostgreSQL real (Testcontainers); sin Docker esa parte se omite sola.
 mvn spring-boot:run      # levanta la API en http://localhost:8080
 ```
 Ejemplos de peticiones en [docs/api.http](docs/api.http).
@@ -54,4 +56,4 @@ Ejemplos de peticiones en [docs/api.http](docs/api.http).
 | GET | /api/reportes/parques/{id}/rango?desde=&hasta= | Un resumen por cada dia con actividad (maximo 366 dias) |
 
 ## Decisiones de arquitectura
-Ver [docs/adr](docs/adr). Incluye como se evita vender mas entradas que el cupo cuando varios compran a la vez ([ADR 0004](docs/adr/0004-concurrencia-del-cupo-bloqueo-optimista.md)) el modulo de control de acceso ([ADR 0005](docs/adr/0005-modulo-accesos-un-pase-por-compra.md)) los reportes ([ADR 0006](docs/adr/0006-reportes-modelo-de-lectura-por-eventos.md)), el outbox ([ADR 0007](docs/adr/0007-outbox-eventos-atomicos-con-el-cambio.md)) y la seguridad ([ADR 0008](docs/adr/0008-seguridad-jwt-y-roles.md)).
+Ver [docs/adr](docs/adr). Incluye como se evita vender mas entradas que el cupo cuando varios compran a la vez ([ADR 0004](docs/adr/0004-concurrencia-del-cupo-bloqueo-optimista.md)) el modulo de control de acceso ([ADR 0005](docs/adr/0005-modulo-accesos-un-pase-por-compra.md)) los reportes ([ADR 0006](docs/adr/0006-reportes-modelo-de-lectura-por-eventos.md)), el outbox ([ADR 0007](docs/adr/0007-outbox-eventos-atomicos-con-el-cambio.md)) la seguridad ([ADR 0008](docs/adr/0008-seguridad-jwt-y-roles.md)) y las pruebas contra PostgreSQL real ([ADR 0009](docs/adr/0009-tests-contra-postgresql-real-con-testcontainers.md)).
