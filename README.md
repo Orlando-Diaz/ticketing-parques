@@ -112,6 +112,15 @@ mvn test                 # H2 en memoria; con Docker en marcha tambien contra Po
 mvn spring-boot:run      # API en http://localhost:8080
 ```
 
+### Frontend (Angular)
+La web del visitante vive en [frontend/](frontend/README.md). Con la API corriendo:
+
+```powershell
+cd frontend
+npm install
+npm start      # http://localhost:4200
+```
+
 ### Con Docker (un solo comando)
 No necesitas instalar Java ni PostgreSQL, solo Docker.
 
@@ -169,4 +178,4 @@ Dicho con honestidad, lo que este proyecto todavia no resuelve (cada punto esta 
 - El token JWT no se puede revocar antes de vencer y el login no limita intentos.
 - Si falla la devolucion del cupo despues de cancelar, el cupo queda ocupado (el lado seguro); cerrarlo del todo seria llevar tambien esa devolucion al outbox.
 - El outbox no limpia filas antiguas y, con varias instancias, dos despachadores podrian entregar el mismo evento (es seguro por la idempotencia, pero repite trabajo).
-- No hay interfaz grafica: solo la API REST.
+- La interfaz grafica cubre por ahora solo al visitante (comprar y ver el boleto); la puerta y la administracion se usan por API.

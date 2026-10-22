@@ -1,0 +1,104 @@
+<main class="pagina">
+  <section class="formulario" aria-labelledby="titulo">
+    <h1 id="titulo">Entradas para tu visita</h1>
+    <p class="intro">Elige el parque, la fecha y quiénes van. El precio se calcula mientras escribes.</p>
+
+    <fieldset class="bloque">
+      <legend>Parque</legend>
+      @if (cargandoParques()) {
+        <p class="nota">Buscando parques…</p>
+      } @else if (errorParques()) {
+        <p class="aviso error" role="alert">{{ errorParques() }}</p>
+      } @else if (parques().length === 0) {
+        <p class="nota">Todavía no hay parques registrados. Un administrador debe crear el primero.</p>
+      } @else {
+        <div class="parques">
+          @for (p of parques(); track p.id) {
+            <label class="parque" [class.elegido]="p.id === parqueId()">
+              <input type="radio" name="parque" [value]="p.id" [checked]="p.id === parqueId()"
+                     (change)="elegirParque(p.id)">
+              <span class="parque-nombre">{{ p.nombre }}</span>
+              <span class="parque-dato">{{ p.cupoDiario }} entradas por día</span>
+            </label>
+          }
+        </div>
+      }
+    </fieldset>
+
+    <div class="bloque">
+      <label class="etiqueta" for="fecha">Fecha de la visita</label>
+      <input id="fecha" class="entrada" type="date" [min]="hoy" [value]="fecha()"
+             (change)="cambiarFecha($any($event.target).value)">
+      @if (!fechaValida()) {
+        <p class="aviso error" role="alert">Elige hoy o una fecha futura.</p>
+      } @else if (errorDisponibilidad()) {
+        <p class="aviso error" role="alert">{{ errorDisponibilidad() }}</p>
+      } @else if (disponibles() !== null) {
+        @if (disponibles() === 0) {
+          <p class="aviso error" role="status">Ese día ya no quedan entradas. Prueba con otra fecha.</p>
+        } @else {
+          <p class="nota" role="status">Quedan {{ disponibles() }} entradas ese día.</p>
+        }
+      }
+    </div>
+
+    <fieldset class="bloque">
+      <legend>Quiénes van</legend>
+      @for (f of filas(); track $index) {
+        <div class="visitante">
+          <div class="campo-edad">
+            <label class="etiqueta" [for]="'edad' + $index">Edad</label>
+            <input [id]="'edad' + $index" class="entrada" type="number" inputmode="numeric" min="0" max="120"
+                   [value]="f.edad ?? ''" (input)="cambiarEdad($index, $any($event.target).value)">
+          </div>
+          <label class="casilla">
+            <input type="checkbox" [checked]="f.residente" (change)="cambiarResidente($index, $any($event.target).checked)">
+            <span>Residente</span>
+          </label>
+          <div class="precio-fila" aria-live="polite">
+            @if (f.cotizacion) {
+              <strong>{{ pesos(f.cotizacion.total) }}</strong>
+              @for (a of f.cotizacion.ajustes; track $index) {
+                <small>{{ a.motivo }}</small>
+              }
+            } @else if (f.error) {
+              <small class="texto-error">{{ f.error }}</small>
+            } @else {
+              <small>Escribe la edad</small>
+            }
+          </div>
+          @if (filas().length > 1) {
+            <button type="button" class="enlace" (click)="quitar($index)" [attr.aria-label]="'Quitar a la persona ' + ($index + 1)">Quitar</button>
+          }
+        </div>
+      }
+      <button type="button" class="secundario" (click)="agregar()">Agregar otra persona</button>
+      <p class="nota">Residente aplica si el parque tiene tarifa para residentes.</p>
+    </fieldset>
+  </section>
+
+  <aside class="boleto" aria-label="Resumen de tu compra">
+    <div class="boleto-cuerpo">
+      <p class="boleto-titulo">{{ parque()?.nombre ?? 'Elige un parque' }}</p>
+      <p class="boleto-dato">{{ fechaValida() ? fechaLarga(fecha()) : 'Elige una fecha' }}</p>
+      <p class="boleto-dato">{{ filas().length }} {{ filas().length === 1 ? 'persona' : 'personas' }}</p>
+    </div>
+    <div class="boleto-talon">
+      <p class="boleto-total-etiqueta">Total</p>
+      <p class="boleto-total">{{ pesos(total()) }}</p>
+      @if (errorCompra()) {
+        <p class="aviso error" role="alert">{{ errorCompra() }}</p>
+      }
+      <button type="button" class="principal" [disabled]="!puedeComprar()" (click)="comprar()">
+        {{ comprando() ? 'Comprando…' : 'Comprar entradas' }}
+      </button>
+      @if (!puedeComprar() && !comprando()) {
+        <p class="nota">
+          @if (!parque()) { Elige un parque. }
+          @else if (!hayCupo()) { No hay cupo para tanta gente ese día. }
+          @else { Completa la edad de cada persona. }
+        </p>
+      }
+    </div>
+  </aside>
+</main>

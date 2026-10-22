@@ -119,4 +119,30 @@ class SeguridadApiTest {
         assertThat(llamar("POST", "/api/usuarios",
                 "{\"nombre\":\"" + nombre + "y\",\"clave\":\"clave-larga-123\",\"rol\":\"DIOS\"}", admin).statusCode()).as("rol raro").isEqualTo(400);
     }
+
+    @Test
+    void elListadoDeParquesEsPublicoPeroCrearUnoNo() throws Exception {
+        assertThat(llamar("GET", "/api/parques", null, null).statusCode()).isEqualTo(200);
+        assertThat(llamar("POST", "/api/parques", "{\"id\":\"p\",\"nombre\":\"P\",\"cupoDiario\":5}", null).statusCode()).isEqualTo(401);
+    }
+
+    @Test
+    void corsAutorizaSoloAlOrigenDelFrontend() throws Exception {
+        var permitido = preflight("http://localhost:4200");
+        assertThat(permitido.statusCode()).isEqualTo(200);
+        assertThat(permitido.headers().firstValue("Access-Control-Allow-Origin")).contains("http://localhost:4200");
+
+        var ajeno = preflight("http://sitio-malicioso.example");
+        assertThat(ajeno.statusCode()).isEqualTo(403);
+    }
+
+    private HttpResponse<String> preflight(String origen) throws Exception {
+        var peticion = HttpRequest.newBuilder(URI.create("http://localhost:" + puerto + "/api/ordenes"))
+                .header("Origin", origen)
+                .header("Access-Control-Request-Method", "POST")
+                .header("Access-Control-Request-Headers", "content-type")
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .build();
+        return http.send(peticion, HttpResponse.BodyHandlers.ofString());
+    }
 }

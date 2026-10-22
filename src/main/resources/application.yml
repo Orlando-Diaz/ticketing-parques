@@ -23,6 +23,9 @@ ticketing:
     # El administrador inicial se crea al arrancar solo si defines ADMIN_PASSWORD (min. 10 caracteres).
     admin-usuario: ${ADMIN_USER:admin}
     admin-clave: ${ADMIN_PASSWORD:}
+  cors:
+    # Origenes (paginas web) autorizados a llamar a la API desde el navegador, separados por coma
+    origenes: ${CORS_ORIGENES:http://localhost:4200}
 
 server:
   port: ${PORT:8080}   # las plataformas (Render, Railway...) indican el puerto con la variable PORT

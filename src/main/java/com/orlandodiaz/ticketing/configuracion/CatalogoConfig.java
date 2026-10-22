@@ -2,6 +2,7 @@ package com.orlandodiaz.ticketing.configuracion;
 
 import com.orlandodiaz.ticketing.catalogo.application.ConsultarCupoDisponible;
 import com.orlandodiaz.ticketing.catalogo.application.LiberarCupo;
+import com.orlandodiaz.ticketing.catalogo.application.ListarParques;
 import com.orlandodiaz.ticketing.catalogo.application.RegistrarParque;
 import com.orlandodiaz.ticketing.catalogo.application.RepositorioDeDisponibilidad;
 import com.orlandodiaz.ticketing.catalogo.application.RepositorioDeParques;
@@ -31,6 +32,11 @@ public class CatalogoConfig {
     @Bean
     RegistrarParque registrarParque(RepositorioDeParques parques) {
         return new RegistrarParque(parques);
+    }
+
+    @Bean
+    ListarParques listarParques(RepositorioDeParques parques) {
+        return new ListarParques(parques);
     }
 
     @Bean

@@ -1,0 +1,79 @@
+<main class="pagina pagina-boleto">
+  @if (cargando()) {
+    <p class="nota">Buscando tu boleto…</p>
+  } @else if (error()) {
+    <section class="vacio">
+      <h1>No pudimos mostrar este boleto</h1>
+      <p class="aviso error" role="alert">{{ error() }}</p>
+      <a class="principal enlace-boton" routerLink="/">Volver a comprar</a>
+    </section>
+  } @else if (orden(); as o) {
+    <section class="encabezado-boleto">
+      <h1>{{ o.estado === 'CONFIRMADA' ? 'Tu compra está lista' : 'Esta compra fue cancelada' }}</h1>
+      <p class="intro">
+        @if (o.estado === 'CONFIRMADA') {
+          Muestra el código QR en la puerta del parque. Guarda esta página: es tu boleto.
+        } @else {
+          El boleto ya no sirve y las entradas volvieron a estar disponibles.
+        }
+      </p>
+    </section>
+
+    <article class="boleto boleto-ancho" [class.anulado]="o.estado !== 'CONFIRMADA'">
+      <div class="boleto-cuerpo">
+        <p class="boleto-titulo">{{ nombreDelParque() ?? o.parqueId }}</p>
+        <p class="boleto-dato">{{ fechaLarga(o.fechaVisita) }}</p>
+        <p class="boleto-dato">{{ resumenDePersonas(o) }}</p>
+        <ul class="lineas">
+          @for (l of o.lineas; track $index) {
+            <li>
+              <span>{{ l.edadVisitante }} {{ l.edadVisitante === 1 ? 'año' : 'años' }}{{ l.residente ? ', residente' : '' }}</span>
+              <span>{{ pesos(l.precio) }}</span>
+            </li>
+          }
+        </ul>
+        <p class="boleto-total-linea"><span>Total pagado</span> <strong>{{ pesos(o.total) }}</strong></p>
+      </div>
+
+      <div class="boleto-talon talon-qr">
+        @if (o.estado !== 'CONFIRMADA') {
+          <p class="sello">Cancelado</p>
+        } @else if (qr(); as imagen) {
+          <img class="qr" [src]="imagen" width="200" height="200"
+               alt="Código QR de tu boleto. Preséntalo en la puerta del parque.">
+          @if (pase(); as p) {
+            <p class="codigo">{{ p.codigo }}</p>
+            <p class="nota">
+              {{ p.entradasRestantes }} de {{ p.entradasTotales }}
+              {{ p.entradasTotales === 1 ? 'entrada disponible' : 'entradas disponibles' }}
+            </p>
+          }
+        } @else {
+          <p class="nota">Estamos generando tu código QR…</p>
+        }
+      </div>
+    </article>
+
+    @if (o.estado === 'CONFIRMADA') {
+      <section class="acciones">
+        @if (!confirmandoCancelacion()) {
+          <button type="button" class="enlace" (click)="pedirConfirmacion()">Cancelar esta compra</button>
+        } @else {
+          <div class="confirmacion" role="alertdialog" aria-labelledby="pregunta">
+            <p id="pregunta"><strong>¿Cancelar la compra?</strong> El boleto dejará de servir.</p>
+            <div class="botones">
+              <button type="button" class="peligro" [disabled]="cancelando()" (click)="cancelar()">
+                {{ cancelando() ? 'Cancelando…' : 'Sí, cancelar compra' }}
+              </button>
+              <button type="button" class="secundario" [disabled]="cancelando()" (click)="conservar()">Conservar boleto</button>
+            </div>
+            @if (errorCancelar()) {
+              <p class="aviso error" role="alert">{{ errorCancelar() }}</p>
+            }
+          </div>
+        }
+      </section>
+    }
+    <p class="nota"><a routerLink="/">Comprar más entradas</a></p>
+  }
+</main>

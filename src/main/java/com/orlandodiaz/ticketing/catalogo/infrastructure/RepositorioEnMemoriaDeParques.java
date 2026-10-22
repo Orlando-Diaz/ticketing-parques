@@ -3,6 +3,8 @@ package com.orlandodiaz.ticketing.catalogo.infrastructure;
 import com.orlandodiaz.ticketing.catalogo.application.RepositorioDeParques;
 import com.orlandodiaz.ticketing.catalogo.domain.Parque;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,5 +22,10 @@ public class RepositorioEnMemoriaDeParques implements RepositorioDeParques {
     @Override
     public void guardar(Parque parque) {
         almacen.put(parque.id(), parque);
+    }
+
+    @Override
+    public List<Parque> listar() {
+        return almacen.values().stream().sorted(Comparator.comparing(Parque::nombre)).toList();
     }
 }

@@ -3,6 +3,8 @@ package com.orlandodiaz.ticketing.catalogo.infrastructure.persistence;
 import com.orlandodiaz.ticketing.catalogo.application.RepositorioDeParques;
 import com.orlandodiaz.ticketing.catalogo.domain.Parque;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,5 +31,14 @@ public class RepositorioJpaDeParques implements RepositorioDeParques {
     @Transactional
     public void guardar(Parque parque) {
         jpa.save(new ParqueJpaEntity(parque.id().valor(), parque.nombre(), parque.cupoDiario()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Parque> listar() {
+        return jpa.findAll().stream()
+                .map(e -> new Parque(new ParqueId(e.getId()), e.getNombre(), e.getCupoDiario()))
+                .sorted(Comparator.comparing(Parque::nombre))
+                .toList();
     }
 }

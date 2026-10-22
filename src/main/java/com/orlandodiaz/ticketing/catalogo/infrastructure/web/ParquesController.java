@@ -1,11 +1,13 @@
 package com.orlandodiaz.ticketing.catalogo.infrastructure.web;
 
 import com.orlandodiaz.ticketing.catalogo.application.ConsultarCupoDisponible;
+import com.orlandodiaz.ticketing.catalogo.application.ListarParques;
 import com.orlandodiaz.ticketing.catalogo.application.RegistrarParque;
 import com.orlandodiaz.ticketing.catalogo.domain.Parque;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,10 +37,20 @@ public class ParquesController {
 
     private final RegistrarParque registrarParque;
     private final ConsultarCupoDisponible consultarCupo;
+    private final ListarParques listarParques;
 
-    public ParquesController(RegistrarParque registrarParque, ConsultarCupoDisponible consultarCupo) {
+    public ParquesController(RegistrarParque registrarParque, ConsultarCupoDisponible consultarCupo,
+                             ListarParques listarParques) {
+        this.listarParques = listarParques;
         this.registrarParque = registrarParque;
         this.consultarCupo = consultarCupo;
+    }
+
+    @GetMapping
+    public List<ParqueResponse> listar() {
+        return listarParques.ejecutar().stream()
+                .map(p -> new ParqueResponse(p.id().valor(), p.nombre(), p.cupoDiario()))
+                .toList();
     }
 
     @PostMapping
