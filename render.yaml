@@ -37,6 +37,16 @@ services:
         generateValue: true
       - key: ADMIN_PASSWORD
         sync: false          # Render te la pide al crear el Blueprint; no queda en el repositorio
+      # Correo: Render gratis bloquea el SMTP, por eso se envia por la API HTTPS de Brevo (ver ADR 0010)
+      - key: BREVO_API_KEY
+        sync: false
+      - key: MAIL_FROM          # el remitente verificado en Brevo
+        sync: false
+      # Direccion publica del frontend (Vercel): los correos enlazan a ella y CORS la autoriza
+      - key: FRONTEND_URL
+        sync: false
+      - key: CORS_ORIGENES
+        sync: false
       # El plan gratuito tiene 512 MB: se limita la memoria de la JVM para que no la maten por exceso
       - key: JAVA_TOOL_OPTIONS
         value: "-XX:MaxRAMPercentage=55 -XX:+UseSerialGC"

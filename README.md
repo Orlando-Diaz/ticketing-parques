@@ -139,6 +139,13 @@ El archivo [render.yaml](render.yaml) describe todo (la API con el Dockerfile y 
 2. Render te pide `ADMIN_PASSWORD` (la clave del usuario `admin`); `JWT_SECRET` lo genera solo y la conexion a la base se configura sola.
 3. Al terminar, la API queda en `https://<tu-servicio>.onrender.com`. Usa esa URL en lugar de `localhost:8080` en `docs/api.http`.
 
+Variables que Render te pide (no estan en el repositorio): `ADMIN_PASSWORD`, `BREVO_API_KEY` y `MAIL_FROM` (el correo se envia por la API HTTPS de Brevo porque Render gratis bloquea el SMTP), `FRONTEND_URL` y `CORS_ORIGENES` (ambas, la direccion de tu frontend en Vercel, sin barra al final).
+
+### Desplegar el frontend en Vercel
+1. En Vercel: **Add New > Project**, importa el repo y en **Root Directory** elige `frontend` (el `vercel.json` ya trae el build y la reescritura para que las rutas de Angular funcionen).
+2. Antes de desplegar, pon en `frontend/src/app/config.prod.ts` la URL de tu API en Render.
+3. Con la direccion que te de Vercel, vuelve a Render y completa `FRONTEND_URL` y `CORS_ORIGENES`.
+
 Con los planes gratuitos, la API se duerme tras un rato sin trafico (la primera peticion tarda en despertarla) y la base gratuita caduca a los 30 dias. Sirve para mostrar el proyecto, no para uso real.
 
 Ejemplos de peticiones (con login incluido) en [docs/api.http](docs/api.http).

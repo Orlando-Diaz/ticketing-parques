@@ -31,6 +31,8 @@ ticketing:
     usuario: ${MAIL_USER:}
     clave: ${MAIL_PASSWORD:}
     remitente: ${MAIL_FROM:}
+    # Si se define, el correo sale por la API HTTPS de Brevo en vez de SMTP (para hostings que bloquean SMTP)
+    brevo-clave: ${BREVO_API_KEY:}
   frontend:
     # Direccion publica del frontend: los correos enlazan a ella
     url: ${FRONTEND_URL:http://localhost:4200}

@@ -5,6 +5,7 @@ import com.orlandodiaz.ticketing.notificaciones.application.EnviadorDeCorreo;
 import com.orlandodiaz.ticketing.notificaciones.application.NombresDeParques;
 import com.orlandodiaz.ticketing.notificaciones.application.NotificarCompraConfirmada;
 import com.orlandodiaz.ticketing.notificaciones.application.RegistroDeNotificaciones;
+import com.orlandodiaz.ticketing.notificaciones.infrastructure.EnviadorBrevo;
 import com.orlandodiaz.ticketing.notificaciones.infrastructure.EnviadorPorConsola;
 import com.orlandodiaz.ticketing.notificaciones.infrastructure.EnviadorSmtp;
 import com.orlandodiaz.ticketing.notificaciones.infrastructure.EscuchaDeCompras;
@@ -18,7 +19,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 /**
- * Compone el modulo de notificaciones. Si defines MAIL_USER y MAIL_PASSWORD el correo sale por SMTP (Gmail por
+ * Compone el modulo de notificaciones. Por orden: si defines BREVO_API_KEY el correo sale por la API HTTPS de Brevo
+ * (para hostings que bloquean SMTP, como Render gratis); si defines MAIL_USER y MAIL_PASSWORD, por SMTP (Gmail por
  * defecto); si no, se escribe en el log y la app funciona igual.
  */
 @Configuration
@@ -29,7 +31,15 @@ public class NotificacionesConfig {
                                       @Value("${ticketing.correo.puerto}") int puerto,
                                       @Value("${ticketing.correo.usuario:}") String usuario,
                                       @Value("${ticketing.correo.clave:}") String clave,
-                                      @Value("${ticketing.correo.remitente:}") String remitente) {
+                                      @Value("${ticketing.correo.remitente:}") String remitente,
+                                      @Value("${ticketing.correo.brevo-clave:}") String claveDeBrevo) {
+        if (!claveDeBrevo.isBlank()) {
+            String desde = remitente.isBlank() ? usuario : remitente;
+            if (desde.isBlank()) {
+                throw new IllegalStateException("Con BREVO_API_KEY tambien se necesita MAIL_FROM (el remitente verificado en Brevo)");
+            }
+            return new EnviadorBrevo(EnviadorBrevo.URL_POR_DEFECTO, claveDeBrevo, desde, "Boleteria de parques");
+        }
         if (usuario.isBlank() || clave.isBlank()) {
             return new EnviadorPorConsola();
         }

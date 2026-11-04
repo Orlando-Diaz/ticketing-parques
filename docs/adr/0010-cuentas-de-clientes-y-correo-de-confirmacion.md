@@ -6,7 +6,7 @@ Hasta ahora cualquiera compraba sin identificarse. Se quiere que cada persona te
 ## Decision
 - **Cuentas en el modulo `seguridad`:** nuevo rol `CLIENTE`. El nombre de usuario de un cliente es su correo en minusculas. `POST /api/auth/registro` crea la cuenta y devuelve el mismo token que el login. Ver parques y precios sigue siendo publico; **comprar exige cuenta** (`CLIENTE` o `ADMIN`).
 - **`ventas` sigue sin conocer `seguridad`:** el controlador recibe el nombre de quien compra (`Principal`) y lo pasa como un simple texto, `cliente`, que la orden y el evento `OrdenConfirmada` llevan. Con eso `GET /api/ordenes/mias` lista las compras de esa persona.
-- **Correo en un modulo nuevo, `notificaciones`:** escucha `OrdenConfirmada` (igual que facturacion), y un caso de uso arma y envia el correo por un puerto (`EnviadorDeCorreo`). Adaptadores: SMTP (Gmail u otro, por variables `MAIL_*`) y uno de consola para desarrollo, que se usa si no hay SMTP configurado. Una tabla `notificacion` evita enviar dos veces el mismo aviso (los eventos se entregan "al menos una vez").
+- **Correo en un modulo nuevo, `notificaciones`:** escucha `OrdenConfirmada` (igual que facturacion), y un caso de uso arma y envia el correo por un puerto (`EnviadorDeCorreo`). Adaptadores: SMTP (Gmail u otro, por variables `MAIL_*`), la API HTTPS de Brevo (`BREVO_API_KEY`; existe porque Render gratis bloquea los puertos SMTP) y uno de consola para desarrollo, que se usa si no hay nada configurado. Una tabla `notificacion` evita enviar dos veces el mismo aviso (los eventos se entregan "al menos una vez").
 - Los datos viejos se mantienen: `cliente` es opcional y los eventos antiguos del outbox sin ese campo siguen leyendose.
 
 ## Consecuencias y limites
