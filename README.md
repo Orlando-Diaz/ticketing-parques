@@ -85,11 +85,12 @@ La entrega es *al menos una vez*, asi que todos los suscriptores son **idempoten
 ## Seguridad
 | Quien | Puede |
 |---|---|
-| Visitante (sin cuenta) | Consultar disponibilidad y precios, comprar, y ver o cancelar su orden, factura y pase |
+| Visitante (sin cuenta) | Ver parques, disponibilidad y precios, crear su cuenta, y ver o cancelar una orden si tiene su enlace |
+| `CLIENTE` | Lo anterior, mas comprar entradas y ver sus propias compras en su perfil |
 | `PUERTA` | Validar QR y consultar pases |
-| `ADMIN` | Todo lo anterior, mas parques, precios, reportes y usuarios |
+| `ADMIN` | Todo lo anterior, mas parques, precios, reportes y usuarios (tambien puede comprar) |
 
-Login con `POST /api/auth/login` (JWT de 60 minutos). Las claves se guardan con BCrypt y los secretos llegan solo por variables de entorno. Una ruta nueva que no se liste exige estar autenticado: nada queda abierto por olvido.
+Los clientes se registran solos con `POST /api/auth/registro` (su correo es su usuario) y quedan con la sesion iniciada; el personal lo crea el administrador. Login con `POST /api/auth/login` (JWT de 60 minutos). Las claves se guardan con BCrypt y los secretos llegan solo por variables de entorno. Una ruta nueva que no se liste exige estar autenticado: nada queda abierto por olvido.
 
 ## Pruebas
 - **Dominio y casos de uso** con repositorios en memoria: rapidas, sin Spring.
@@ -106,6 +107,8 @@ Necesita Java 21, Maven y PostgreSQL con una base vacia llamada `ticketing_parqu
 $env:DB_PASSWORD = "tu_contrasena"
 $env:JWT_SECRET = "una-cadena-aleatoria-de-al-menos-32-caracteres"   # firma los tokens (obligatoria)
 $env:ADMIN_PASSWORD = "clave-de-admin-de-10+-caracteres"             # crea al usuario "admin" la primera vez
+# correo (opcional): sin MAIL_USER y MAIL_PASSWORD, el correo de confirmacion se escribe en el log
+# $env:MAIL_USER = "tu-cuenta@gmail.com"; $env:MAIL_PASSWORD = "contrasena-de-aplicacion-de-google"; $env:FRONTEND_URL = "http://localhost:4200"
 # opcionales: DB_USER=postgres, DB_URL=jdbc:postgresql://localhost:5432/ticketing_parques
 
 mvn test                 # H2 en memoria; con Docker en marcha tambien contra PostgreSQL real
@@ -144,13 +147,15 @@ Ejemplos de peticiones (con login incluido) en [docs/api.http](docs/api.http).
 | Metodo | Ruta | Acceso | Que hace |
 |---|---|---|---|
 | POST | /api/auth/login | publico | Cambia usuario y clave por un token |
+| POST | /api/auth/registro | publico | Crea la cuenta de un cliente (nombre, correo, clave) y devuelve su token |
 | POST | /api/usuarios | ADMIN | Crea un usuario (ADMIN o PUERTA) |
 | POST | /api/parques | ADMIN | Registra un parque |
 | PUT | /api/parques/{id}/precios | ADMIN | Configura tarifas y reglas del parque |
 | GET | /api/parques/{id}/precios | publico | Tipos de entrada del parque con su precio y sus reglas activas |
 | GET | /api/parques/{id}/precios/cotizacion | publico | Cotiza una entrada |
 | GET | /api/parques/{id}/disponibilidad?fecha= | publico | Cupo disponible |
-| POST | /api/ordenes | publico | Compra entradas |
+| POST | /api/ordenes | CLIENTE, ADMIN | Compra entradas (queda ligada a la cuenta y se avisa por correo) |
+| GET | /api/ordenes/mias | CLIENTE, ADMIN | Las compras de quien tiene la sesion (el perfil) |
 | GET | /api/ordenes/{id} | publico | Consulta una orden |
 | POST | /api/ordenes/{id}/cancelacion | publico | Cancela una orden |
 | GET | /api/ordenes/{id}/factura | publico | Factura de la orden |
@@ -172,6 +177,7 @@ Ejemplos de peticiones (con login incluido) en [docs/api.http](docs/api.http).
 | [0007](docs/adr/0007-outbox-eventos-atomicos-con-el-cambio.md) | Outbox |
 | [0008](docs/adr/0008-seguridad-jwt-y-roles.md) | Seguridad: JWT y roles |
 | [0009](docs/adr/0009-tests-contra-postgresql-real-con-testcontainers.md) | Pruebas contra PostgreSQL real |
+| [0010](docs/adr/0010-cuentas-de-clientes-y-correo-de-confirmacion.md) | Cuentas de clientes y correo de confirmacion |
 
 ## Limites conocidos
 Dicho con honestidad, lo que este proyecto todavia no resuelve (cada punto esta detallado en su ADR):
@@ -179,4 +185,5 @@ Dicho con honestidad, lo que este proyecto todavia no resuelve (cada punto esta 
 - El token JWT no se puede revocar antes de vencer y el login no limita intentos.
 - Si falla la devolucion del cupo despues de cancelar, el cupo queda ocupado (el lado seguro); cerrarlo del todo seria llevar tambien esa devolucion al outbox.
 - El outbox no limpia filas antiguas y, con varias instancias, dos despachadores podrian entregar el mismo evento (es seguro por la idempotencia, pero repite trabajo).
+- El correo de una cuenta nueva no se verifica (cualquiera puede registrar un correo ajeno) y el correo de confirmacion solo sale al comprar, sin reintentos si el SMTP falla (ADR 0010).
 - La interfaz grafica cubre al visitante (comprar y ver el boleto), a la puerta (login del personal, lector de QR con camara) y a la administracion (parques, precios, usuarios y reportes con graficas).

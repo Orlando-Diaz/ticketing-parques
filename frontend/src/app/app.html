@@ -3,16 +3,27 @@
     <span class="marca-sello" aria-hidden="true"></span>
     Boletería
   </a>
-  <nav class="cabecera-personal" aria-label="Personal">
+  <nav class="cabecera-personal" aria-label="Principal">
     @if (auth.sesion(); as s) {
-      @if (s.rol === 'ADMIN') {
-        <a routerLink="/admin">Administración</a>
+      @switch (s.rol) {
+        @case ('ADMIN') {
+          <a routerLink="/admin">Administración</a>
+          <a routerLink="/puerta">Puerta</a>
+          <a routerLink="/comprar">Comprar</a>
+        }
+        @case ('PUERTA') {
+          <a routerLink="/puerta">Puerta</a>
+        }
+        @default {
+          <a routerLink="/comprar">Comprar</a>
+          <a routerLink="/perfil">Mi perfil</a>
+        }
       }
-      <a routerLink="/puerta">Puerta</a>
-      <span class="usuario">{{ s.usuario }}</span>
+      <span class="usuario">{{ s.nombre }}</span>
       <button type="button" class="enlace" (click)="salir()">Salir</button>
     } @else {
-      <a routerLink="/acceso">Personal</a>
+      <a routerLink="/acceso">Iniciar sesión</a>
+      <a class="boton-cabecera" routerLink="/acceso" [queryParams]="{ crear: 1 }">Crear cuenta</a>
     }
   </nav>
 </header>

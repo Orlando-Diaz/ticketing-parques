@@ -29,6 +29,7 @@ export interface Orden {
   estado: string;
   total: number;
   lineas: LineaDeOrden[];
+  creadaEn?: string;
 }
 
 export interface Ingreso {

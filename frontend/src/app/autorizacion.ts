@@ -21,24 +21,27 @@ export const tokenInterceptor: HttpInterceptorFn = (peticion, siguiente) => {
     }));
 };
 
-/** Solo administradores; la gente de la puerta vuelve a su pantalla y quien no inició sesión va al login. */
-export const soloAdmin: CanActivateFn = (_ruta, estado) => {
-  const sesion = inject(AuthService).sesion();
-  const router = inject(Router);
-  if (sesion?.rol === 'ADMIN') {
-    return true;
-  }
-  if (sesion) {
-    return router.createUrlTree(['/puerta']);
-  }
-  return router.createUrlTree(['/acceso'], { queryParams: { volver: estado.url } });
-};
+/** Deja pasar a los roles indicados; quien no inició sesión va al login y quien tiene otro rol, a su propio inicio. */
+function permitir(...roles: string[]): CanActivateFn {
+  return (_ruta, estado) => {
+    const auth = inject(AuthService);
+    const router = inject(Router);
+    const sesion = auth.sesion();
+    if (sesion && roles.includes(sesion.rol)) {
+      return true;
+    }
+    if (sesion) {
+      return router.parseUrl(auth.inicioDelRol());
+    }
+    return router.createUrlTree(['/acceso'], { queryParams: { volver: estado.url } });
+  };
+}
 
-/** Solo deja entrar al personal de la puerta (y a los administradores); el resto va al login. */
-export const soloPersonal: CanActivateFn = (_ruta, estado) => {
-  const sesion = inject(AuthService).sesion();
-  if (sesion) {
-    return true;
-  }
-  return inject(Router).createUrlTree(['/acceso'], { queryParams: { volver: estado.url } });
-};
+/** Solo administradores. */
+export const soloAdmin = permitir('ADMIN');
+
+/** El personal de la puerta y los administradores. */
+export const soloPersonal = permitir('ADMIN', 'PUERTA');
+
+/** Quien puede comprar y tener perfil: clientes (y administradores). */
+export const soloCliente = permitir('CLIENTE', 'ADMIN');

@@ -34,6 +34,11 @@ export class ApiService {
     return firstValueFrom(this.http.get<Orden>(`${API_URL}/api/ordenes/${encodeURIComponent(id)}`));
   }
 
+  /** Las compras de quien tiene la sesión iniciada (cliente o administrador). */
+  misOrdenes(): Promise<Orden[]> {
+    return firstValueFrom(this.http.get<Orden[]>(`${API_URL}/api/ordenes/mias`));
+  }
+
   pase(ordenId: string): Promise<Pase> {
     return firstValueFrom(this.http.get<Pase>(`${API_URL}/api/ordenes/${encodeURIComponent(ordenId)}/pase`));
   }

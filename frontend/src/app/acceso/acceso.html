@@ -1,21 +1,58 @@
 <main class="pagina pagina-estrecha">
   <section>
-    <h1>Acceso del personal</h1>
-    <p class="intro">Para validar boletos en la puerta del parque.</p>
-
-    <form class="bloque" (submit)="entrar($event, usuario.value, clave.value)">
-      <label class="etiqueta" for="usuario">Usuario</label>
-      <input #usuario id="usuario" class="entrada" type="text" autocomplete="username" autocapitalize="none" required>
-
-      <label class="etiqueta separado" for="clave">Clave</label>
-      <input #clave id="clave" class="entrada" type="password" autocomplete="current-password" required>
-
-      @if (error()) {
-        <p class="aviso error" role="alert">{{ error() }}</p>
+    <h1>{{ modo() === 'crear' ? 'Crea tu cuenta' : 'Inicia sesión' }}</h1>
+    <p class="intro">
+      @if (modo() === 'crear') {
+        Con tu cuenta compras entradas y encuentras todos tus boletos en tu perfil.
+      } @else {
+        Clientes, administradores y personal de la puerta entran por aquí.
       }
-      <button type="submit" class="principal separado" [disabled]="entrando()">
-        {{ entrando() ? 'Entrando…' : 'Entrar' }}
-      </button>
-    </form>
+    </p>
+
+    <div class="pestanas" role="tablist" aria-label="Elige una opción">
+      <button type="button" role="tab" [attr.aria-selected]="modo() === 'entrar'" [class.activa]="modo() === 'entrar'"
+              (click)="cambiarModo('entrar')">Iniciar sesión</button>
+      <button type="button" role="tab" [attr.aria-selected]="modo() === 'crear'" [class.activa]="modo() === 'crear'"
+              (click)="cambiarModo('crear')">Crear cuenta</button>
+    </div>
+
+    @if (modo() === 'entrar') {
+      <form class="bloque" (submit)="entrar($event, usuario.value, clave.value)">
+        <label class="etiqueta" for="usuario">Correo o usuario</label>
+        <input #usuario id="usuario" class="entrada" type="text" autocomplete="username" autocapitalize="none" required>
+
+        <label class="etiqueta separado" for="clave">Clave</label>
+        <input #clave id="clave" class="entrada" type="password" autocomplete="current-password" required>
+
+        @if (error()) {
+          <p class="aviso error" role="alert">{{ error() }}</p>
+        }
+        <button type="submit" class="principal separado" [disabled]="enviando()">
+          {{ enviando() ? 'Entrando…' : 'Entrar' }}
+        </button>
+      </form>
+    } @else {
+      <form class="bloque" (submit)="crear($event, nombre.value, correo.value, nueva.value, repetida.value)">
+        <label class="etiqueta" for="nombre">Tu nombre</label>
+        <input #nombre id="nombre" class="entrada" type="text" autocomplete="name" maxlength="100" required>
+
+        <label class="etiqueta separado" for="correo">Correo</label>
+        <input #correo id="correo" class="entrada" type="email" autocomplete="email" autocapitalize="none" required>
+        <p class="nota">Aquí te llegará la confirmación de cada compra.</p>
+
+        <label class="etiqueta separado" for="nueva">Clave (mínimo 10 caracteres)</label>
+        <input #nueva id="nueva" class="entrada" type="password" autocomplete="new-password" minlength="10" required>
+
+        <label class="etiqueta separado" for="repetida">Repite la clave</label>
+        <input #repetida id="repetida" class="entrada" type="password" autocomplete="new-password" minlength="10" required>
+
+        @if (error()) {
+          <p class="aviso error" role="alert">{{ error() }}</p>
+        }
+        <button type="submit" class="principal separado" [disabled]="enviando()">
+          {{ enviando() ? 'Creando…' : 'Crear mi cuenta' }}
+        </button>
+      </form>
+    }
   </section>
 </main>

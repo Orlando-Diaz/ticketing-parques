@@ -5,7 +5,9 @@ import { API_URL } from './config';
 
 export interface Sesion {
   usuario: string;
-  rol: 'ADMIN' | 'PUERTA';
+  /** Cómo saludar a la persona: su nombre si lo dio, si no el usuario. */
+  nombre: string;
+  rol: 'ADMIN' | 'PUERTA' | 'CLIENTE';
   expira: number; // segundos desde 1970
 }
 
@@ -25,10 +27,10 @@ function leerSesion(token: string): Sesion | null {
     const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
     const json = new TextDecoder().decode(Uint8Array.from(atob(base64), c => c.charCodeAt(0)));
     const datos = JSON.parse(json);
-    if ((datos.rol !== 'ADMIN' && datos.rol !== 'PUERTA') || typeof datos.sub !== 'string' || typeof datos.exp !== 'number') {
+    if ((datos.rol !== 'ADMIN' && datos.rol !== 'PUERTA' && datos.rol !== 'CLIENTE') || typeof datos.sub !== 'string' || typeof datos.exp !== 'number') {
       return null;
     }
-    return { usuario: datos.sub, rol: datos.rol, expira: datos.exp };
+    return { usuario: datos.sub, nombre: typeof datos.nombre === 'string' ? datos.nombre : datos.sub, rol: datos.rol, expira: datos.exp };
   } catch {
     return null;
   }
@@ -51,12 +53,32 @@ export class AuthService {
   async iniciarSesion(usuario: string, clave: string): Promise<void> {
     const respuesta = await firstValueFrom(
       this.http.post<{ token: string }>(`${API_URL}/api/auth/login`, { usuario, clave }));
+    this.guardar(respuesta.token);
+  }
+
+  /** Crea la cuenta de un cliente; la API devuelve la sesión ya iniciada. */
+  async registrar(nombre: string, correo: string, clave: string): Promise<void> {
+    const respuesta = await firstValueFrom(
+      this.http.post<{ token: string }>(`${API_URL}/api/auth/registro`, { nombre, correo, clave }));
+    this.guardar(respuesta.token);
+  }
+
+  /** A dónde va cada rol al entrar. */
+  inicioDelRol(): string {
+    switch (this.sesion()?.rol) {
+      case 'ADMIN': return '/admin';
+      case 'PUERTA': return '/puerta';
+      default: return '/';
+    }
+  }
+
+  private guardar(token: string): void {
     try {
-      sessionStorage.setItem(CLAVE, respuesta.token);
+      sessionStorage.setItem(CLAVE, token);
     } catch {
       // sin almacenamiento: la sesión queda solo en memoria
     }
-    this.guardado.set(respuesta.token);
+    this.guardado.set(token);
   }
 
   cerrarSesion(): void {

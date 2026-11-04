@@ -180,7 +180,7 @@ button:disabled { opacity: .7; cursor: not-allowed; }
 
 /* ---------- Pantallas anchas ---------- */
 @media (min-width: 56rem) {
-  .pagina:not(.pagina-boleto):not(.pagina-estrecha):not(.pagina-admin):not(.pagina-compra) { grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1fr); gap: 3rem; padding-top: 2.5rem; }
+  .pagina:not(.pagina-boleto):not(.pagina-estrecha):not(.pagina-admin):not(.pagina-compra):not(.pagina-inicio):not(.pagina-perfil) { grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1fr); gap: 3rem; padding-top: 2.5rem; }
   .visitante { grid-template-columns: 6rem 9rem 1fr auto; }
   .precio-fila { grid-column: auto; }
 }
@@ -337,3 +337,30 @@ button:disabled { opacity: .7; cursor: not-allowed; }
   .cantidad { grid-column: 1 / -1; grid-row: auto; justify-content: flex-end; }
   .barra-total .principal { width: 100%; }
 }
+
+/* ---------- Inicio, acceso unificado y perfil ---------- */
+.pagina-inicio, .pagina-perfil { grid-template-columns: minmax(0, 1fr); max-width: 56rem; width: 100%; }
+.pagina-inicio h1 { max-width: 16ch; }
+.heroe { padding: 1rem 0 .5rem; }
+.heroe-sobre { font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: .85rem; color: var(--verde); margin-bottom: .5rem; }
+.heroe .botones { margin-top: .5rem; }
+.heroe .enlace-boton { margin-top: 0; text-decoration: none; display: inline-block; text-align: center; }
+.tarjetas-parque { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.tarjeta-parque { display: grid; gap: .25rem; align-content: start; background: var(--papel); border: 1.5px solid var(--linea); border-radius: var(--radio); padding: 1rem 1.1rem; }
+.tarjeta-parque .enlace-boton { margin-top: .6rem; text-decoration: none; text-align: center; }
+.boton-cabecera { background: var(--verde); color: #fff; text-decoration: none; padding: .4rem .85rem; border-radius: var(--radio); font-weight: 600; }
+.boton-cabecera:hover { background: var(--verde-oscuro); }
+.pestanas { display: grid; grid-template-columns: 1fr 1fr; gap: .25rem; background: #dfe7d6; padding: .25rem; border-radius: var(--radio); margin-bottom: 1.5rem; }
+.pestanas button { border: 0; background: transparent; padding: .6rem; border-radius: 8px; font-weight: 600; color: var(--tinta-suave); }
+.pestanas button.activa { background: var(--papel); color: var(--verde-oscuro); box-shadow: 0 1px 3px rgba(18, 41, 31, .15); }
+.encabezado-perfil { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: .75rem 1.5rem; }
+.encabezado-perfil .intro { margin-bottom: 0; }
+.encabezado-perfil .enlace-boton { width: auto; margin-top: 0; text-decoration: none; }
+.compras { list-style: none; margin: 0 0 1.5rem; padding: 0; display: grid; gap: .6rem; }
+.compra { display: grid; gap: .1rem; text-decoration: none; color: inherit; background: var(--papel); border: 1.5px solid var(--linea); border-left: 6px solid var(--caléndula); border-radius: var(--radio); padding: .85rem 1rem; }
+.compra:hover { border-color: var(--verde); border-left-color: var(--verde); }
+.compra-pasada { border-left-color: var(--linea); }
+.compra-parque { font-family: var(--fuente-titulo); font-weight: 800; font-size: 1.15rem; }
+.compra-fecha, .compra-pie { color: var(--tinta-suave); }
+.compra-ver { color: var(--verde); font-weight: 600; margin-top: .25rem; }
+.etiqueta-estado { color: var(--error); margin-left: .5rem; }

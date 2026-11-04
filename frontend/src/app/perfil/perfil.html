@@ -1,0 +1,57 @@
+<main class="pagina pagina-perfil">
+  <section class="encabezado-perfil">
+    <div>
+      <h1>Mi perfil</h1>
+      @if (auth.sesion(); as s) {
+        <p class="intro">{{ s.nombre }}@if (s.nombre !== s.usuario) { · {{ s.usuario }} }</p>
+      }
+    </div>
+    <a class="principal enlace-boton" routerLink="/comprar">Comprar entradas</a>
+  </section>
+
+  @if (cargando()) {
+    <p class="nota">Buscando tus compras…</p>
+  } @else if (error()) {
+    <p class="aviso error" role="alert">{{ error() }}</p>
+  } @else if (ordenes().length === 0) {
+    <section class="vacio tarjeta">
+      <h2>Aún no tienes compras</h2>
+      <p class="nota">Cuando compres entradas aparecerán aquí, con su código QR, y te llegará un correo.</p>
+      <a class="principal enlace-boton" routerLink="/comprar">Comprar mis primeras entradas</a>
+    </section>
+  } @else {
+    @if (proximas().length > 0) {
+      <h2 class="titulo-entradas">Próximas visitas</h2>
+      <ul class="compras">
+        @for (o of proximas(); track o.id) {
+          <li>
+            <a class="compra" [routerLink]="['/orden', o.id]">
+              <span class="compra-parque">{{ nombreDelParque(o.parqueId) }}</span>
+              <span class="compra-fecha">{{ fechaLarga(o.fechaVisita) }}</span>
+              <span class="compra-pie">{{ entradas(o) }} · {{ pesos(o.total) }}</span>
+              <span class="compra-ver">Ver boleto y QR →</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (anteriores().length > 0) {
+      <h2 class="titulo-entradas">Historial</h2>
+      <ul class="compras">
+        @for (o of anteriores(); track o.id) {
+          <li>
+            <a class="compra compra-pasada" [routerLink]="['/orden', o.id]">
+              <span class="compra-parque">{{ nombreDelParque(o.parqueId) }}</span>
+              <span class="compra-fecha">{{ fechaLarga(o.fechaVisita) }}</span>
+              <span class="compra-pie">
+                {{ entradas(o) }} · {{ pesos(o.total) }}
+                @if (o.estado !== 'CONFIRMADA') { <strong class="etiqueta-estado">Cancelada</strong> }
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  }
+</main>

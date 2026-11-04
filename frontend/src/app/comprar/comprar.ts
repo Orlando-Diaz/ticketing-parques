@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, mensajeDeError } from '../api.service';
 import { fechaLarga, hoyIso, pesos } from '../formato';
 import { Cotizacion, Parque } from '../modelos';
@@ -23,6 +23,7 @@ interface Linea {
 export class Comprar implements OnInit {
   private readonly api = inject(ApiService);
   private readonly router = inject(Router);
+  private readonly ruta = inject(ActivatedRoute);
 
   protected readonly pesos = pesos;
   protected readonly fechaLarga = fechaLarga;
@@ -65,8 +66,10 @@ export class Comprar implements OnInit {
     try {
       const lista = await this.api.parques();
       this.parques.set(lista);
-      if (lista.length === 1) {
-        await this.elegirParque(lista[0].id);
+      const pedido = this.ruta.snapshot.queryParamMap.get('parque'); // viene de la pantalla de inicio
+      const elegido = lista.find(p => p.id === pedido) ?? (lista.length === 1 ? lista[0] : null);
+      if (elegido) {
+        await this.elegirParque(elegido.id);
       }
     } catch (e) {
       this.errorParques.set(mensajeDeError(e));

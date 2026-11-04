@@ -1,0 +1,59 @@
+<main class="pagina pagina-inicio">
+  <section class="heroe">
+    <p class="heroe-sobre">Boletería de parques</p>
+    <h1>Tu entrada al parque, sin filas.</h1>
+    <p class="intro">Crea tu cuenta, compra tus entradas en minutos y guarda todos tus boletos en tu perfil. Te enviamos la confirmación a tu correo.</p>
+
+    @if (auth.sesion(); as s) {
+      <div class="botones">
+        @switch (s.rol) {
+          @case ('ADMIN') {
+            <a class="principal enlace-boton" routerLink="/admin">Ir a administración</a>
+            <a class="secundario enlace-boton" routerLink="/puerta">Puerta</a>
+          }
+          @case ('PUERTA') {
+            <a class="principal enlace-boton" routerLink="/puerta">Ir a la puerta</a>
+          }
+          @default {
+            <a class="principal enlace-boton" routerLink="/comprar">Comprar entradas</a>
+            <a class="secundario enlace-boton" routerLink="/perfil">Mis compras</a>
+          }
+        }
+      </div>
+      <p class="nota">Hola, {{ s.nombre }}.</p>
+    } @else {
+      <div class="botones">
+        <a class="principal enlace-boton" routerLink="/acceso" [queryParams]="{ crear: 1 }">Crear mi cuenta</a>
+        <a class="secundario enlace-boton" routerLink="/acceso">Ya tengo cuenta</a>
+      </div>
+      <p class="nota">Puedes ver los parques y sus precios sin cuenta; la necesitas para comprar.</p>
+    }
+  </section>
+
+  <section aria-labelledby="titulo-parques">
+    <h2 id="titulo-parques" class="titulo-entradas">Nuestros parques</h2>
+    @if (cargando()) {
+      <p class="nota">Buscando parques…</p>
+    } @else if (error()) {
+      <p class="aviso error" role="alert">{{ error() }}</p>
+    } @else if (parques().length === 0) {
+      <p class="nota">Todavía no hay parques registrados.</p>
+    } @else {
+      <ul class="tarjetas-parque">
+        @for (p of parques(); track p.id) {
+          <li class="tarjeta-parque">
+            <span class="parque-nombre">{{ p.nombre }}</span>
+            <span class="parque-dato">{{ p.cupoDiario }} entradas por día</span>
+            @if (auth.sesion()?.rol === 'PUERTA') {
+              <span class="nota">Entra como cliente para comprar.</span>
+            } @else if (auth.sesion()) {
+              <a class="secundario enlace-boton" routerLink="/comprar" [queryParams]="{ parque: p.id }">Comprar entradas</a>
+            } @else {
+              <a class="secundario enlace-boton" routerLink="/acceso" [queryParams]="{ volver: '/comprar?parque=' + p.id }">Entrar para comprar</a>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</main>
