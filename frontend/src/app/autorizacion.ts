@@ -21,6 +21,19 @@ export const tokenInterceptor: HttpInterceptorFn = (peticion, siguiente) => {
     }));
 };
 
+/** Solo administradores; la gente de la puerta vuelve a su pantalla y quien no inició sesión va al login. */
+export const soloAdmin: CanActivateFn = (_ruta, estado) => {
+  const sesion = inject(AuthService).sesion();
+  const router = inject(Router);
+  if (sesion?.rol === 'ADMIN') {
+    return true;
+  }
+  if (sesion) {
+    return router.createUrlTree(['/puerta']);
+  }
+  return router.createUrlTree(['/acceso'], { queryParams: { volver: estado.url } });
+};
+
 /** Solo deja entrar al personal de la puerta (y a los administradores); el resto va al login. */
 export const soloPersonal: CanActivateFn = (_ruta, estado) => {
   const sesion = inject(AuthService).sesion();

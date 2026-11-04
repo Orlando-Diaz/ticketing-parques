@@ -1,0 +1,46 @@
+<section>
+  <h1>Parques</h1>
+  <p class="intro">Crea un parque y configura sus precios. Un parque sin precios todavía no puede venderse.</p>
+
+  <form class="bloque tarjeta" (submit)="crear($event, nombre.value, cupo.value)">
+    <h2>Nuevo parque</h2>
+    <label class="etiqueta" for="nombre">Nombre</label>
+    <input #nombre id="nombre" class="entrada" type="text" autocomplete="off" required (input)="escribioNombre(nombre.value)">
+
+    <label class="etiqueta separado" for="identificador">Identificador (aparece en las direcciones)</label>
+    <input id="identificador" class="entrada" type="text" autocomplete="off" required
+           [value]="identificador()" (input)="escribioIdentificador($any($event.target).value)">
+
+    <label class="etiqueta separado" for="cupo">Cupo diario (personas por día)</label>
+    <input #cupo id="cupo" class="entrada" type="number" min="1" step="1" required>
+
+    @if (error()) {
+      <p class="aviso error" role="alert">{{ error() }}</p>
+    }
+    @if (exito()) {
+      <p class="aviso exito" role="status">{{ exito() }}</p>
+    }
+    <button type="submit" class="principal separado" [disabled]="guardando()">
+      {{ guardando() ? 'Creando…' : 'Crear parque' }}
+    </button>
+  </form>
+
+  <h2>Parques creados</h2>
+  @if (cargando()) {
+    <p class="nota">Cargando…</p>
+  } @else if (parques().length === 0) {
+    <p class="nota">Todavía no hay parques.</p>
+  } @else {
+    <ul class="lista-admin">
+      @for (p of parques(); track p.id) {
+        <li>
+          <div>
+            <strong>{{ p.nombre }}</strong>
+            <span class="nota">{{ p.id }} · cupo {{ p.cupoDiario }} por día</span>
+          </div>
+          <a class="secundario enlace-boton" [routerLink]="[p.id, 'precios']">Configurar precios</a>
+        </li>
+      }
+    </ul>
+  }
+</section>

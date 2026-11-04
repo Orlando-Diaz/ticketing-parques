@@ -178,4 +178,4 @@ Dicho con honestidad, lo que este proyecto todavia no resuelve (cada punto esta 
 - El token JWT no se puede revocar antes de vencer y el login no limita intentos.
 - Si falla la devolucion del cupo despues de cancelar, el cupo queda ocupado (el lado seguro); cerrarlo del todo seria llevar tambien esa devolucion al outbox.
 - El outbox no limpia filas antiguas y, con varias instancias, dos despachadores podrian entregar el mismo evento (es seguro por la idempotencia, pero repite trabajo).
-- La interfaz grafica cubre al visitante (comprar y ver el boleto) y a la puerta (login del personal, lector de QR con camara); la administracion (parques, precios, reportes) se usa por API.
+- La interfaz grafica cubre al visitante (comprar y ver el boleto), a la puerta (login del personal, lector de QR con camara) y parte de la administracion (parques, precios y usuarios); los reportes se consultan por API.

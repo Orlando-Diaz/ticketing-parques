@@ -1,10 +1,21 @@
 import { Routes } from '@angular/router';
-import { soloPersonal } from './autorizacion';
+import { soloAdmin, soloPersonal } from './autorizacion';
 
 export const routes: Routes = [
   { path: '', title: 'Compra tus entradas', loadComponent: () => import('./comprar/comprar').then(m => m.Comprar) },
   { path: 'orden/:id', title: 'Tu boleto', loadComponent: () => import('./orden/orden').then(m => m.OrdenPage) },
   { path: 'acceso', title: 'Acceso del personal', loadComponent: () => import('./acceso/acceso').then(m => m.AccesoPage) },
   { path: 'puerta', title: 'Puerta', canActivate: [soloPersonal], loadComponent: () => import('./puerta/puerta').then(m => m.PuertaPage) },
+  {
+    path: 'admin',
+    canActivate: [soloAdmin],
+    loadComponent: () => import('./admin/admin').then(m => m.AdminPage),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'parques' },
+      { path: 'parques', title: 'Parques', loadComponent: () => import('./admin/parques/parques').then(m => m.ParquesAdmin) },
+      { path: 'parques/:id/precios', title: 'Precios', loadComponent: () => import('./admin/precios/precios').then(m => m.PreciosAdmin) },
+      { path: 'usuarios', title: 'Usuarios', loadComponent: () => import('./admin/usuarios/usuarios').then(m => m.UsuariosAdmin) }
+    ]
+  },
   { path: '**', redirectTo: '' }
 ];

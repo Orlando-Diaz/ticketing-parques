@@ -54,3 +54,13 @@ export interface VisitanteNuevo {
   edad: number;
   residente: boolean;
 }
+
+/** Lo que la API espera para configurar los precios de un parque. */
+export interface ConfiguracionDePrecios {
+  esquema: {
+    tipo: 'UNICA' | 'POR_CATEGORIA';
+    precio?: number;
+    categorias?: { nombre: string; edadMinima: number; edadMaxima: number | null; precio: number }[];
+  };
+  reglas: { tipo: string; porcentaje?: number; tamanoMinimo?: number }[];
+}

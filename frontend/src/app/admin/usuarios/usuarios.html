@@ -1,0 +1,26 @@
+<section>
+  <h1>Usuarios</h1>
+  <p class="intro">Crea cuentas para el personal. La clave solo se guarda cifrada: anótala y entrégala a la persona, después no se puede ver.</p>
+
+  <form class="bloque tarjeta" (submit)="crear($event, nombre.value, clave.value, rol.value)">
+    <label class="etiqueta" for="nombre">Nombre de usuario</label>
+    <input #nombre id="nombre" class="entrada" type="text" autocomplete="off" autocapitalize="none" required>
+
+    <label class="etiqueta separado" for="clave">Clave (mínimo 10 caracteres)</label>
+    <input #clave id="clave" class="entrada" type="password" autocomplete="new-password" minlength="10" required>
+
+    <label class="etiqueta separado" for="rol">Rol</label>
+    <select #rol id="rol" class="entrada">
+      <option value="PUERTA">Puerta (valida entradas)</option>
+      <option value="ADMIN">Administrador (todo)</option>
+    </select>
+
+    @if (error()) {
+      <p class="aviso error" role="alert">{{ error() }}</p>
+    }
+    @if (creado()) {
+      <p class="aviso exito" role="status">{{ creado() }}</p>
+    }
+    <button type="submit" class="principal separado" [disabled]="guardando()">{{ guardando() ? 'Creando…' : 'Crear usuario' }}</button>
+  </form>
+</section>

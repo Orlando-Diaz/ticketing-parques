@@ -1,0 +1,124 @@
+<section>
+  <a class="enlace-volver" routerLink="/admin/parques">← Parques</a>
+  <h1>Precios de {{ nombreDelParque() }}</h1>
+  <p class="intro">Al guardar se reemplaza toda la configuración anterior de este parque.</p>
+
+  <form (submit)="guardar($event)">
+    <fieldset class="bloque tarjeta">
+      <legend>Tarifa</legend>
+      <label class="casilla"><input type="radio" name="tipo" [checked]="tipo() === 'POR_CATEGORIA'" (change)="cambiarTipo('POR_CATEGORIA')"> Por categoría (según la edad)</label>
+      <label class="casilla"><input type="radio" name="tipo" [checked]="tipo() === 'UNICA'" (change)="cambiarTipo('UNICA')"> Precio único para todos</label>
+
+      @if (tipo() === 'UNICA') {
+        <label class="etiqueta separado" for="precio-unico">Precio de la entrada (pesos)</label>
+        <input id="precio-unico" class="entrada" type="number" min="1" step="1" inputmode="numeric"
+               [value]="precioUnico() ?? ''" (input)="precioUnico.set(numeroDe($any($event.target).value))">
+      } @else {
+        <p class="nota">Edad máxima vacía significa "sin límite". Las edades no deben cruzarse entre categorías.</p>
+        @for (c of categorias(); track $index) {
+          <div class="categoria">
+            <div>
+              <label class="etiqueta-corta" [attr.for]="'nombre' + $index">Nombre</label>
+              <input class="entrada" [id]="'nombre' + $index" type="text" [value]="c.nombre"
+                     (input)="editarCategoria($index, { nombre: $any($event.target).value })">
+            </div>
+            <div>
+              <label class="etiqueta-corta" [attr.for]="'min' + $index">Edad mín.</label>
+              <input class="entrada" [id]="'min' + $index" type="number" min="0" [value]="c.edadMinima ?? ''"
+                     (input)="editarCategoria($index, { edadMinima: numeroDe($any($event.target).value) })">
+            </div>
+            <div>
+              <label class="etiqueta-corta" [attr.for]="'max' + $index">Edad máx.</label>
+              <input class="entrada" [id]="'max' + $index" type="number" min="0" [value]="c.edadMaxima ?? ''"
+                     (input)="editarCategoria($index, { edadMaxima: numeroDe($any($event.target).value) })">
+            </div>
+            <div>
+              <label class="etiqueta-corta" [attr.for]="'precio' + $index">Precio</label>
+              <input class="entrada" [id]="'precio' + $index" type="number" min="1" inputmode="numeric" [value]="c.precio ?? ''"
+                     (input)="editarCategoria($index, { precio: numeroDe($any($event.target).value) })">
+            </div>
+            <button type="button" class="enlace quitar" (click)="quitarCategoria($index)" [attr.aria-label]="'Quitar la categoría ' + c.nombre">Quitar</button>
+          </div>
+        }
+        <button type="button" class="secundario separado" (click)="agregarCategoria()">Agregar categoría</button>
+      }
+    </fieldset>
+
+    <fieldset class="bloque tarjeta">
+      <legend>Descuentos y recargos (opcionales)</legend>
+
+      <div class="regla">
+        <label class="casilla"><input type="checkbox" [checked]="reglas().residenteActiva" (change)="editarReglas({ residenteActiva: $any($event.target).checked })"> Descuento a residentes</label>
+        @if (reglas().residenteActiva) {
+          <label class="inline">
+            <input class="entrada corta" type="number" min="1" max="100" [value]="reglas().residentePorcentaje"
+                   (input)="editarReglas({ residentePorcentaje: +$any($event.target).value })"> % de descuento
+          </label>
+        }
+      </div>
+
+      <div class="regla">
+        <label class="casilla"><input type="checkbox" [checked]="reglas().grupoActiva" (change)="editarReglas({ grupoActiva: $any($event.target).checked })"> Descuento por grupo</label>
+        @if (reglas().grupoActiva) {
+          <label class="inline">
+            Desde <input class="entrada corta" type="number" min="2" [value]="reglas().grupoTamano"
+                         (input)="editarReglas({ grupoTamano: +$any($event.target).value })"> personas,
+            <input class="entrada corta" type="number" min="1" max="100" [value]="reglas().grupoPorcentaje"
+                   (input)="editarReglas({ grupoPorcentaje: +$any($event.target).value })"> % de descuento
+          </label>
+        }
+      </div>
+
+      <div class="regla">
+        <label class="casilla"><input type="checkbox" [checked]="reglas().findeActiva" (change)="editarReglas({ findeActiva: $any($event.target).checked })"> Recargo en fin de semana</label>
+        @if (reglas().findeActiva) {
+          <label class="inline">
+            <input class="entrada corta" type="number" min="1" max="100" [value]="reglas().findePorcentaje"
+                   (input)="editarReglas({ findePorcentaje: +$any($event.target).value })"> % de recargo
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    @if (error()) {
+      <p class="aviso error" role="alert">{{ error() }}</p>
+    }
+    @if (exito()) {
+      <p class="aviso exito" role="status">Precios guardados. Pruébalos aquí abajo.</p>
+    }
+    <button type="submit" class="principal" [disabled]="guardando()">{{ guardando() ? 'Guardando…' : 'Guardar precios' }}</button>
+  </form>
+
+  <div class="bloque tarjeta prueba">
+    <h2>Probar una cotización</h2>
+    <div class="categoria prueba-campos">
+      <div>
+        <label class="etiqueta-corta" for="p-edad">Edad</label>
+        <input id="p-edad" class="entrada" type="number" min="0" [value]="prueba().edad" (input)="editarPrueba({ edad: +$any($event.target).value })">
+      </div>
+      <div>
+        <label class="etiqueta-corta" for="p-grupo">Personas en el grupo</label>
+        <input id="p-grupo" class="entrada" type="number" min="1" [value]="prueba().grupo" (input)="editarPrueba({ grupo: +$any($event.target).value })">
+      </div>
+      <div>
+        <label class="etiqueta-corta" for="p-fecha">Fecha</label>
+        <input id="p-fecha" class="entrada" type="date" [value]="prueba().fecha" (input)="editarPrueba({ fecha: $any($event.target).value })">
+      </div>
+      <label class="casilla"><input type="checkbox" [checked]="prueba().residente" (change)="editarPrueba({ residente: $any($event.target).checked })"> Residente</label>
+    </div>
+    <button type="button" class="secundario separado" (click)="probar()">Calcular precio</button>
+
+    @if (errorPrueba()) {
+      <p class="aviso error" role="alert">{{ errorPrueba() }}</p>
+    }
+    @if (cotizacion(); as c) {
+      <ul class="lineas">
+        <li><span>Precio base</span><span>{{ pesos(c.precioBase) }}</span></li>
+        @for (a of c.ajustes; track $index) {
+          <li><span>{{ a.motivo }}</span><span>{{ a.tipo === 'DESCUENTO' ? '−' : '+' }}{{ pesos(a.monto) }}</span></li>
+        }
+      </ul>
+      <p class="boleto-total-linea"><span>Total</span> <strong>{{ pesos(c.total) }}</strong></p>
+    }
+  </div>
+</section>

@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from './config';
-import { Cotizacion, Orden, Parque, Pase, VisitanteNuevo } from './modelos';
+import { ConfiguracionDePrecios, Cotizacion, Orden, Parque, Pase, VisitanteNuevo } from './modelos';
 
 /** Todas las llamadas a la API del visitante. Los componentes no conocen URLs. */
 @Injectable({ providedIn: 'root' })
@@ -45,6 +45,23 @@ export class ApiService {
 
   registrarIngreso(codigo: string, personas: number, puerta: string): Promise<Pase> {
     return firstValueFrom(this.http.post<Pase>(`${API_URL}/api/accesos/ingresos`, { codigo, personas, puerta }));
+  }
+
+  /** Solo ADMIN. */
+  crearParque(id: string, nombre: string, cupoDiario: number): Promise<Parque> {
+    return firstValueFrom(this.http.post<Parque>(`${API_URL}/api/parques`, { id, nombre, cupoDiario }));
+  }
+
+  /** Solo ADMIN. Reemplaza toda la configuración de precios del parque. */
+  configurarPrecios(parqueId: string, configuracion: ConfiguracionDePrecios): Promise<void> {
+    return firstValueFrom(this.http.put<void>(
+      `${API_URL}/api/parques/${encodeURIComponent(parqueId)}/precios`, configuracion));
+  }
+
+  /** Solo ADMIN. */
+  crearUsuario(nombre: string, clave: string, rol: string): Promise<{ nombre: string; rol: string }> {
+    return firstValueFrom(this.http.post<{ nombre: string; rol: string }>(
+      `${API_URL}/api/usuarios`, { nombre, clave, rol }));
   }
 
   cancelar(id: string): Promise<Orden> {

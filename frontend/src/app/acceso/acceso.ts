@@ -23,7 +23,8 @@ export class AccesoPage {
       await this.auth.iniciarSesion(usuario.trim(), clave);
       const volver = this.ruta.snapshot.queryParamMap.get('volver');
       // Solo rutas internas: evita que un enlace manipulado lleve a otro sitio después del login
-      await this.router.navigateByUrl(volver && volver.startsWith('/') && !volver.startsWith('//') ? volver : '/puerta');
+      await this.router.navigateByUrl(volver && volver.startsWith('/') && !volver.startsWith('//')
+        ? volver : this.auth.sesion()?.rol === 'ADMIN' ? '/admin' : '/puerta');
     } catch (e) {
       this.error.set(mensajeDeError(e) === 'Tu sesión venció o no es válida. Inicia sesión de nuevo.'
         ? 'Usuario o clave incorrectos.' : mensajeDeError(e));

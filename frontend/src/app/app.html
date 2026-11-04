@@ -5,6 +5,9 @@
   </a>
   <nav class="cabecera-personal" aria-label="Personal">
     @if (auth.sesion(); as s) {
+      @if (s.rol === 'ADMIN') {
+        <a routerLink="/admin">Administración</a>
+      }
       <a routerLink="/puerta">Puerta</a>
       <span class="usuario">{{ s.usuario }}</span>
       <button type="button" class="enlace" (click)="salir()">Salir</button>

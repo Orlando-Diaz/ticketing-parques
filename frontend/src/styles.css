@@ -180,7 +180,7 @@ button:disabled { opacity: .7; cursor: not-allowed; }
 
 /* ---------- Pantallas anchas ---------- */
 @media (min-width: 56rem) {
-  .pagina:not(.pagina-boleto):not(.pagina-estrecha) { grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1fr); gap: 3rem; padding-top: 2.5rem; }
+  .pagina:not(.pagina-boleto):not(.pagina-estrecha):not(.pagina-admin) { grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1fr); gap: 3rem; padding-top: 2.5rem; }
   .visitante { grid-template-columns: 6rem 9rem 1fr auto; }
   .precio-fila { grid-column: auto; }
 }
@@ -217,3 +217,37 @@ button:disabled { opacity: .7; cursor: not-allowed; }
 .contador button { min-width: 3.5rem; min-height: 3.5rem; font-size: 1.75rem; }
 .contador-valor { font-family: var(--fuente-titulo); font-weight: 800; font-size: 3rem; min-width: 3ch; text-align: center; }
 .principal.grande { width: 100%; min-height: 3.75rem; font-size: 1.2rem; }
+
+/* ---------- Administración ---------- */
+.pagina-admin { width: 100%; max-width: 56rem; grid-template-columns: minmax(0, 1fr); }
+.pagina-admin h1, .pagina-admin .intro { max-width: none; }
+.subnav { display: flex; gap: 1.25rem; border-bottom: 1.5px solid var(--linea); }
+.subnav a { padding: .5rem 0; text-decoration: none; color: var(--tinta-suave); font-weight: 600; border-bottom: 3px solid transparent; margin-bottom: -1.5px; }
+.subnav a.activo { color: var(--verde-oscuro); border-bottom-color: var(--caléndula); }
+.tarjeta { background: var(--papel); border: 1.5px solid var(--linea); border-radius: var(--radio); padding: 1.25rem; margin-bottom: 1.5rem; }
+.tarjeta h2, .pagina-admin h2 { font-family: var(--fuente-titulo); font-size: 1.25rem; margin: 0 0 .75rem; }
+.tarjeta legend { font-family: var(--fuente-titulo); font-weight: 700; font-size: 1.15rem; padding: 0 .4rem; }
+.pagina-admin .entrada { max-width: none; }
+.pagina-admin .entrada.corta { width: 5.5rem; display: inline-block; margin: 0 .3rem; }
+.pagina-admin select.entrada { appearance: auto; }
+.aviso.exito { background: #e2efdc; color: var(--verde-oscuro); border-color: #b5d3a8; }
+.lista-admin { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.lista-admin li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--papel); border: 1.5px solid var(--linea); border-radius: var(--radio); padding: .85rem 1rem; }
+.lista-admin li > div { display: grid; }
+.categoria { display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr auto; gap: .6rem; align-items: end; margin-top: .75rem; }
+.prueba-campos { grid-template-columns: repeat(3, 1fr) auto; }
+.etiqueta-corta { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .25rem; color: var(--tinta-suave); }
+.quitar { padding: .65rem .25rem; }
+.regla { padding: .5rem 0; border-top: 1px solid var(--linea); }
+.regla:first-of-type { border-top: 0; }
+.inline { display: block; margin: .25rem 0 .25rem 1.75rem; }
+.enlace-volver { display: inline-block; margin-bottom: .75rem; }
+@media (max-width: 40rem) {
+  .categoria, .prueba-campos { grid-template-columns: 1fr 1fr; }
+  .categoria > :first-child { grid-column: 1 / -1; }
+}
+.cabecera { flex-wrap: wrap; gap: .5rem 1rem; }
+.cabecera-personal { flex-wrap: wrap; }
+.pagina-admin .aviso { margin: .9rem 0; }
+.pagina-admin form { margin-bottom: 1.5rem; }
+.pagina-admin form > .principal { margin-top: .25rem; }
