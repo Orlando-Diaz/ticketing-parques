@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toDataURL } from 'qrcode';
 import { ApiService, mensajeDeError } from '../api.service';
 import { fechaLarga, pesos } from '../formato';
-import { Orden, Parque, Pase } from '../modelos';
+import { ConfiguracionDePrecios, Orden, Parque, Pase } from '../modelos';
 
 @Component({
   selector: 'app-orden',
@@ -21,6 +21,7 @@ export class OrdenPage implements OnInit {
   protected readonly pase = signal<Pase | null>(null);
   protected readonly nombreDelParque = signal<string | null>(null);
   protected readonly qr = signal<string | null>(null);
+  private readonly precios = signal<ConfiguracionDePrecios | null>(null);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly errorCancelar = signal<string | null>(null);
@@ -33,7 +34,7 @@ export class OrdenPage implements OnInit {
     this.id = this.ruta.snapshot.paramMap.get('id') ?? '';
     try {
       this.orden.set(await this.api.orden(this.id));
-      await Promise.all([this.cargarPase(), this.cargarNombreDelParque()]);
+      await Promise.all([this.cargarPase(), this.cargarNombreDelParque(), this.cargarPrecios()]);
     } catch (e) {
       this.error.set(mensajeDeError(e));
     } finally {
@@ -49,6 +50,22 @@ export class OrdenPage implements OnInit {
     } catch {
       this.nombreDelParque.set(null);
     }
+  }
+
+  /** Para poner el nombre de la categoría ("Adulto") en cada línea; es un extra, si falla se muestra la edad. */
+  private async cargarPrecios(): Promise<void> {
+    try {
+      this.precios.set(await this.api.preciosDelParque(this.orden()?.parqueId ?? ''));
+    } catch {
+      this.precios.set(null);
+    }
+  }
+
+  protected descripcionDeLinea(edad: number, residente: boolean): string {
+    const categorias = this.precios()?.esquema.categorias;
+    const categoria = categorias?.find(c => edad >= c.edadMinima && (c.edadMaxima === null || edad <= c.edadMaxima));
+    const base = categoria ? categoria.nombre : `${edad} ${edad === 1 ? 'año' : 'años'}`;
+    return residente ? `${base}, residente` : base;
   }
 
   /** El pase se emite justo después de la compra; si aún no está, se reintenta unas veces. */

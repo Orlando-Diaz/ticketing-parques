@@ -109,6 +109,27 @@ class TicketingApiTest {
     }
 
     @Test
+    void losPreciosDelParqueSeConsultanSinSesion() throws Exception {
+        crearParque("tarifas", 5);
+
+        // sin Authorization: lo ve cualquier visitante
+        var respuesta = http.send(HttpRequest.newBuilder(
+                URI.create("http://localhost:" + puerto + "/api/parques/tarifas/precios")).GET().build(),
+                HttpResponse.BodyHandlers.ofString());
+        assertThat(respuesta.statusCode()).isEqualTo(200);
+        assertThat(respuesta.body())
+                .contains("\"tipo\":\"POR_CATEGORIA\"")
+                .contains("\"nombre\":\"Nino\"", "\"edadMinima\":3", "\"edadMaxima\":10", "\"precio\":25000")
+                .contains("\"nombre\":\"Adulto\"", "\"edadMaxima\":null", "\"precio\":50000")
+                .contains("DESCUENTO_RESIDENTE", "\"porcentaje\":20");
+
+        // un parque sin precios configurados -> 404
+        assertThat(llamar("POST", "/api/parques", "{\"id\":\"sin-precios\",\"nombre\":\"Sin precios\",\"cupoDiario\":5}").statusCode())
+                .isEqualTo(201);
+        assertThat(llamar("GET", "/api/parques/sin-precios/precios", null).statusCode()).isEqualTo(404);
+    }
+
+    @Test
     void erroresSeTraducenACodigosHttpCorrectos() throws Exception {
         assertThat(llamar("GET", "/api/parques/no-existe/disponibilidad?fecha=" + visita, null).statusCode()).isEqualTo(404);
         assertThat(llamar("GET", "/api/ordenes/no-existe", null).statusCode()).isEqualTo(404);

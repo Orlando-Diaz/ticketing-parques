@@ -47,6 +47,9 @@ Content-Type: application/json
 # PUT http://localhost:8080/api/parques/panaca/precios
 # { "esquema": { "tipo": "UNICA", "precio": 40000 }, "reglas": [] }
 
+### 2c. Ver los precios configurados (publico: es lo que usa la pantalla de compra)
+GET http://localhost:8080/api/parques/panaca/precios
+
 ### 3. Cotizar una entrada
 GET http://localhost:8080/api/parques/panaca/precios/cotizacion?edad=30&residente=true&fecha=2026-12-20
 

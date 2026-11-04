@@ -62,7 +62,7 @@ public class CadenaDeSeguridadConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/parques").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/parques/*/disponibilidad",
-                                "/api/parques/*/precios/cotizacion").permitAll()
+                                "/api/parques/*/precios", "/api/parques/*/precios/cotizacion").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/ordenes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ordenes/*", "/api/ordenes/*/factura",
                                 "/api/ordenes/*/pase").permitAll()

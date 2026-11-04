@@ -147,6 +147,7 @@ Ejemplos de peticiones (con login incluido) en [docs/api.http](docs/api.http).
 | POST | /api/usuarios | ADMIN | Crea un usuario (ADMIN o PUERTA) |
 | POST | /api/parques | ADMIN | Registra un parque |
 | PUT | /api/parques/{id}/precios | ADMIN | Configura tarifas y reglas del parque |
+| GET | /api/parques/{id}/precios | publico | Tipos de entrada del parque con su precio y sus reglas activas |
 | GET | /api/parques/{id}/precios/cotizacion | publico | Cotiza una entrada |
 | GET | /api/parques/{id}/disponibilidad?fecha= | publico | Cupo disponible |
 | POST | /api/ordenes | publico | Compra entradas |

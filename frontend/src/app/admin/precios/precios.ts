@@ -61,6 +61,33 @@ export class PreciosAdmin implements OnInit {
     } catch {
       // el nombre es solo un adorno: si falla, se muestra el identificador
     }
+    await this.cargarConfiguracionActual();
+  }
+
+  /** Si el parque ya tiene precios, el formulario arranca con ellos; si no (404), se queda con los de ejemplo. */
+  private async cargarConfiguracionActual(): Promise<void> {
+    try {
+      const actual = await this.api.preciosDelParque(this.parqueId);
+      if (actual.esquema.tipo === 'UNICA') {
+        this.tipo.set('UNICA');
+        this.precioUnico.set(actual.esquema.precio ?? null);
+      } else {
+        this.tipo.set('POR_CATEGORIA');
+        this.categorias.set((actual.esquema.categorias ?? []).map(c => ({ ...c })));
+      }
+      const regla = (tipo: string) => actual.reglas.find(r => r.tipo === tipo);
+      const residente = regla('DESCUENTO_RESIDENTE');
+      const grupo = regla('DESCUENTO_GRUPO');
+      const finde = regla('RECARGO_FIN_DE_SEMANA');
+      this.reglas.update(r => ({
+        residenteActiva: !!residente, residentePorcentaje: residente?.porcentaje ?? r.residentePorcentaje,
+        grupoActiva: !!grupo, grupoTamano: grupo?.tamanoMinimo ?? r.grupoTamano,
+        grupoPorcentaje: grupo?.porcentaje ?? r.grupoPorcentaje,
+        findeActiva: !!finde, findePorcentaje: finde?.porcentaje ?? r.findePorcentaje
+      }));
+    } catch {
+      // sin configuración todavía: se usan los valores de ejemplo
+    }
   }
 
   protected cambiarTipo(valor: string): void {

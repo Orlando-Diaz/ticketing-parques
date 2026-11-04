@@ -2,6 +2,7 @@ package com.orlandodiaz.ticketing.configuracion;
 
 import com.orlandodiaz.ticketing.precios.application.CalcularPrecioDeEntrada;
 import com.orlandodiaz.ticketing.precios.application.ConfigurarPreciosDelParque;
+import com.orlandodiaz.ticketing.precios.application.ConsultarPreciosDelParque;
 import com.orlandodiaz.ticketing.precios.application.RepositorioDeConfiguracionDePrecios;
 import com.orlandodiaz.ticketing.precios.infrastructure.persistence.ConfiguracionPreciosJpaRepository;
 import com.orlandodiaz.ticketing.precios.infrastructure.persistence.RepositorioJpaDeConfiguracionDePrecios;
@@ -19,6 +20,11 @@ public class PreciosConfig {
     @Bean
     CalcularPrecioDeEntrada calcularPrecioDeEntrada(RepositorioDeConfiguracionDePrecios repositorio) {
         return new CalcularPrecioDeEntrada(repositorio);
+    }
+
+    @Bean
+    ConsultarPreciosDelParque consultarPreciosDelParque(RepositorioDeConfiguracionDePrecios repositorio) {
+        return new ConsultarPreciosDelParque(repositorio);
     }
 
     @Bean

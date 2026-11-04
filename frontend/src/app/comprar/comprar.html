@@ -1,7 +1,7 @@
-<main class="pagina">
-  <section class="formulario" aria-labelledby="titulo">
+<main class="pagina pagina-compra">
+  <section aria-labelledby="titulo">
     <h1 id="titulo">Entradas para tu visita</h1>
-    <p class="intro">Elige el parque, la fecha y quiénes van. El precio se calcula mientras escribes.</p>
+    <p class="intro">Elige el parque y la fecha, y cuántas entradas de cada tipo necesitas.</p>
 
     <fieldset class="bloque">
       <legend>Parque</legend>
@@ -42,63 +42,88 @@
       }
     </div>
 
-    <fieldset class="bloque">
-      <legend>Quiénes van</legend>
-      @for (f of filas(); track $index) {
-        <div class="visitante">
-          <div class="campo-edad">
-            <label class="etiqueta" [for]="'edad' + $index">Edad</label>
-            <input [id]="'edad' + $index" class="entrada" type="number" inputmode="numeric" min="0" max="120"
-                   [value]="f.edad ?? ''" (input)="cambiarEdad($index, $any($event.target).value)">
-          </div>
-          <label class="casilla">
-            <input type="checkbox" [checked]="f.residente" (change)="cambiarResidente($index, $any($event.target).checked)">
-            <span>Residente</span>
-          </label>
-          <div class="precio-fila" aria-live="polite">
-            @if (f.cotizacion) {
-              <strong>{{ pesos(f.cotizacion.total) }}</strong>
-              @for (a of f.cotizacion.ajustes; track $index) {
-                <small>{{ a.motivo }}</small>
-              }
-            } @else if (f.error) {
-              <small class="texto-error">{{ f.error }}</small>
-            } @else {
-              <small>Escribe la edad</small>
-            }
-          </div>
-          @if (filas().length > 1) {
-            <button type="button" class="enlace" (click)="quitar($index)" [attr.aria-label]="'Quitar a la persona ' + ($index + 1)">Quitar</button>
+    @if (parque()) {
+      <h2 class="titulo-entradas">Tus entradas</h2>
+      @if (cargandoEntradas()) {
+        <p class="nota">Cargando precios…</p>
+      } @else if (errorEntradas()) {
+        <p class="aviso error" role="alert">{{ errorEntradas() }}</p>
+      } @else {
+        <ul class="entradas">
+          @for (l of lineas(); track $index) {
+            <li class="entrada-fila">
+              <div class="ficha ficha-{{ $index % 4 }}" aria-hidden="true">
+                <span class="ficha-sello"></span>
+                <span class="ficha-nombre">{{ l.nombre }}</span>
+              </div>
+
+              <div class="entrada-info">
+                <p class="entrada-nombre">{{ l.nombre }}</p>
+                <p class="entrada-detalle">{{ edades(l) }}</p>
+                @if (hayDescuentoResidente()) {
+                  <label class="casilla casilla-chica">
+                    <input type="checkbox" [checked]="l.residente" (change)="cambiarResidente($index, $any($event.target).checked)">
+                    <span>Residente</span>
+                  </label>
+                }
+                @if (l.cotizacion) {
+                  @for (a of l.cotizacion.ajustes; track $index) {
+                    <p class="entrada-ajuste">{{ a.motivo }}</p>
+                  }
+                }
+                @if (l.error) {
+                  <p class="entrada-ajuste texto-error">{{ l.error }}</p>
+                }
+              </div>
+
+              <div class="entrada-precio" aria-live="polite">
+                @if (l.cotizacion) {
+                  <strong>{{ pesos(l.cotizacion.total) }}</strong>
+                  @if (l.cotizacion.total !== l.cotizacion.precioBase) {
+                    <s>{{ pesos(l.cotizacion.precioBase) }}</s>
+                  }
+                } @else {
+                  <strong>{{ pesos(l.precio) }}</strong>
+                }
+              </div>
+
+              <div class="cantidad" role="group" [attr.aria-label]="'Cantidad de entradas ' + l.nombre">
+                <button type="button" class="paso" (click)="cambiarCantidad($index, -1)" [disabled]="l.cantidad === 0"
+                        [attr.aria-label]="'Una entrada ' + l.nombre + ' menos'">−</button>
+                <output>{{ l.cantidad }}</output>
+                <button type="button" class="paso" (click)="cambiarCantidad($index, 1)"
+                        [attr.aria-label]="'Una entrada ' + l.nombre + ' más'">+</button>
+              </div>
+            </li>
           }
-        </div>
+        </ul>
+        @if (lineas().length === 0 && !errorEntradas()) {
+          <p class="nota">Este parque todavía no tiene precios configurados.</p>
+        }
       }
-      <button type="button" class="secundario" (click)="agregar()">Agregar otra persona</button>
-      <p class="nota">Residente aplica si el parque tiene tarifa para residentes.</p>
-    </fieldset>
+    }
   </section>
 
-  <aside class="boleto" aria-label="Resumen de tu compra">
-    <div class="boleto-cuerpo">
-      <p class="boleto-titulo">{{ parque()?.nombre ?? 'Elige un parque' }}</p>
-      <p class="boleto-dato">{{ fechaValida() ? fechaLarga(fecha()) : 'Elige una fecha' }}</p>
-      <p class="boleto-dato">{{ filas().length }} {{ filas().length === 1 ? 'persona' : 'personas' }}</p>
-    </div>
-    <div class="boleto-talon">
-      <p class="boleto-total-etiqueta">Total</p>
-      <p class="boleto-total">{{ pesos(total()) }}</p>
+  <aside class="barra-total" aria-label="Resumen de tu compra">
+    <div class="barra-detalle">
+      <p class="barra-parque">{{ parque()?.nombre ?? 'Elige un parque' }}</p>
+      <p class="nota">
+        {{ fechaValida() ? fechaLarga(fecha()) : 'Elige una fecha' }} ·
+        {{ personas() }} {{ personas() === 1 ? 'entrada' : 'entradas' }}
+      </p>
       @if (errorCompra()) {
         <p class="aviso error" role="alert">{{ errorCompra() }}</p>
-      }
-      <button type="button" class="principal" [disabled]="!puedeComprar()" (click)="comprar()">
-        {{ comprando() ? 'Comprando…' : 'Comprar entradas' }}
-      </button>
-      @if (!puedeComprar() && !comprando()) {
+      } @else if (!puedeComprar() && !comprando()) {
         <p class="nota">
           @if (!parque()) { Elige un parque. }
           @else if (!hayCupo()) { No hay cupo para tanta gente ese día. }
-          @else { Completa la edad de cada persona. }
+          @else if (personas() === 0) { Agrega al menos una entrada. }
         </p>
       }
     </div>
+    <p class="barra-total-valor"><span>Total</span> <strong>{{ pesos(total()) }}</strong></p>
+    <button type="button" class="principal" [disabled]="!puedeComprar()" (click)="comprar()">
+      {{ comprando() ? 'Comprando…' : 'Continuar' }}
+    </button>
   </aside>
 </main>

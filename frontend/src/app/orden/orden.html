@@ -27,7 +27,7 @@
         <ul class="lineas">
           @for (l of o.lineas; track $index) {
             <li>
-              <span>{{ l.edadVisitante }} {{ l.edadVisitante === 1 ? 'año' : 'años' }}{{ l.residente ? ', residente' : '' }}</span>
+              <span>{{ descripcionDeLinea(l.edadVisitante, l.residente) }}</span>
               <span>{{ pesos(l.precio) }}</span>
             </li>
           }

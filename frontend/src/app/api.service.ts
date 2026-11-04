@@ -47,6 +47,12 @@ export class ApiService {
     return firstValueFrom(this.http.post<Pase>(`${API_URL}/api/accesos/ingresos`, { codigo, personas, puerta }));
   }
 
+  /** Público: los tipos de entrada del parque con su precio, y los descuentos o recargos activos. */
+  preciosDelParque(parqueId: string): Promise<ConfiguracionDePrecios> {
+    return firstValueFrom(this.http.get<ConfiguracionDePrecios>(
+      `${API_URL}/api/parques/${encodeURIComponent(parqueId)}/precios`));
+  }
+
   /** Solo ADMIN. */
   crearParque(id: string, nombre: string, cupoDiario: number): Promise<Parque> {
     return firstValueFrom(this.http.post<Parque>(`${API_URL}/api/parques`, { id, nombre, cupoDiario }));

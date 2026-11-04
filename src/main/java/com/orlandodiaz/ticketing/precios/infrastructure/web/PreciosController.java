@@ -2,8 +2,13 @@ package com.orlandodiaz.ticketing.precios.infrastructure.web;
 
 import com.orlandodiaz.ticketing.precios.application.CalcularPrecioDeEntrada;
 import com.orlandodiaz.ticketing.precios.application.ConfigurarPreciosDelParque;
+import com.orlandodiaz.ticketing.precios.application.ConsultarPreciosDelParque;
+import com.orlandodiaz.ticketing.precios.domain.ConfiguracionDePrecios;
 import com.orlandodiaz.ticketing.precios.domain.DatosDeVisita;
 import com.orlandodiaz.ticketing.precios.domain.DesglosePrecio;
+import com.orlandodiaz.ticketing.precios.domain.EsquemaDeTarifa;
+import com.orlandodiaz.ticketing.precios.domain.TarifaPorCategoria;
+import com.orlandodiaz.ticketing.precios.domain.TarifaUnica;
 import com.orlandodiaz.ticketing.shared.domain.ParqueId;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,12 +32,54 @@ public class PreciosController {
     public record CotizacionResponse(long precioBase, List<AjusteResponse> ajustes, long total) {
     }
 
+    /** edadMaxima nula significa "sin limite". */
+    public record CategoriaResponse(String nombre, int edadMinima, Integer edadMaxima, long precio) {
+    }
+
+    /** tipo "UNICA" usa precio; tipo "POR_CATEGORIA" usa categorias. Es la misma forma que recibe el PUT. */
+    public record EsquemaResponse(String tipo, Long precio, List<CategoriaResponse> categorias) {
+    }
+
+    public record ReglaResponse(String tipo, Integer porcentaje, Integer tamanoMinimo) {
+    }
+
+    public record ConfiguracionResponse(EsquemaResponse esquema, List<ReglaResponse> reglas) {
+    }
+
     private final ConfigurarPreciosDelParque configurarPrecios;
+    private final ConsultarPreciosDelParque consultarPrecios;
     private final CalcularPrecioDeEntrada calcularPrecio;
 
-    public PreciosController(ConfigurarPreciosDelParque configurarPrecios, CalcularPrecioDeEntrada calcularPrecio) {
+    public PreciosController(ConfigurarPreciosDelParque configurarPrecios,
+                             ConsultarPreciosDelParque consultarPrecios,
+                             CalcularPrecioDeEntrada calcularPrecio) {
         this.configurarPrecios = configurarPrecios;
+        this.consultarPrecios = consultarPrecios;
         this.calcularPrecio = calcularPrecio;
+    }
+
+    /** Publico: la pantalla de compra necesita saber que tipos de entrada hay y cuanto cuestan. */
+    @GetMapping
+    public ConfiguracionResponse consultar(@PathVariable("parqueId") String parqueId) {
+        ConfiguracionDePrecios configuracion = consultarPrecios.ejecutar(new ParqueId(parqueId));
+        return new ConfiguracionResponse(
+                aEsquema(configuracion.esquema()),
+                configuracion.reglas().stream().map(r -> {
+                    var d = r.describir();
+                    return new ReglaResponse(d.tipo(), d.porcentaje(), d.tamanoMinimo());
+                }).toList());
+    }
+
+    private static EsquemaResponse aEsquema(EsquemaDeTarifa esquema) {
+        return switch (esquema) {
+            case TarifaUnica unica -> new EsquemaResponse("UNICA", unica.precio().pesos(), null);
+            case TarifaPorCategoria porCategoria -> new EsquemaResponse("POR_CATEGORIA", null,
+                    porCategoria.tarifas().stream().map(t -> new CategoriaResponse(
+                            t.categoria().nombre(),
+                            t.categoria().edadMinima(),
+                            t.categoria().edadMaxima() == Integer.MAX_VALUE ? null : t.categoria().edadMaxima(),
+                            t.precio().pesos())).toList());
+        };
     }
 
     @PutMapping
