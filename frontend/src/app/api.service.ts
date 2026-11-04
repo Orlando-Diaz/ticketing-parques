@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from './config';
-import { ConfiguracionDePrecios, Cotizacion, Orden, Parque, Pase, VisitanteNuevo } from './modelos';
+import { ConfiguracionDePrecios, Cotizacion, Orden, ResumenDelDia, Parque, Pase, VisitanteNuevo } from './modelos';
 
 /** Todas las llamadas a la API del visitante. Los componentes no conocen URLs. */
 @Injectable({ providedIn: 'root' })
@@ -62,6 +62,13 @@ export class ApiService {
   crearUsuario(nombre: string, clave: string, rol: string): Promise<{ nombre: string; rol: string }> {
     return firstValueFrom(this.http.post<{ nombre: string; rol: string }>(
       `${API_URL}/api/usuarios`, { nombre, clave, rol }));
+  }
+
+  /** Solo ADMIN. Un resumen por cada día con actividad dentro del rango (máximo 366 días). */
+  reporteDelRango(parqueId: string, desde: string, hasta: string): Promise<ResumenDelDia[]> {
+    const params = new HttpParams().set('desde', desde).set('hasta', hasta);
+    return firstValueFrom(this.http.get<ResumenDelDia[]>(
+      `${API_URL}/api/reportes/parques/${encodeURIComponent(parqueId)}/rango`, { params }));
   }
 
   cancelar(id: string): Promise<Orden> {

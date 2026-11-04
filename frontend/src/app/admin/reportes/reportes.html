@@ -1,0 +1,89 @@
+<section>
+  <h1>Reportes</h1>
+  <p class="intro">Ventas, cancelaciones e ingresos por día de visita. Solo aparecen los días con actividad.</p>
+
+  <form class="filtros" (submit)="$event.preventDefault(); consultar()">
+    <div>
+      <label class="etiqueta-corta" for="r-parque">Parque</label>
+      <select id="r-parque" class="entrada" (change)="parqueId.set($any($event.target).value)">
+        @for (p of parques(); track p.id) {
+          <option [value]="p.id" [selected]="p.id === parqueId()">{{ p.nombre }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label class="etiqueta-corta" for="r-desde">Desde</label>
+      <input id="r-desde" class="entrada" type="date" [value]="desde()" (change)="desde.set($any($event.target).value)">
+    </div>
+    <div>
+      <label class="etiqueta-corta" for="r-hasta">Hasta</label>
+      <input id="r-hasta" class="entrada" type="date" [value]="hasta()" (change)="hasta.set($any($event.target).value)">
+    </div>
+    <button type="submit" class="principal" [disabled]="cargando() || parques().length === 0">{{ cargando() ? 'Consultando…' : 'Ver reporte' }}</button>
+  </form>
+
+  @if (error()) {
+    <p class="aviso error" role="alert">{{ error() }}</p>
+  }
+  @if (parques().length === 0 && !error()) {
+    <p class="nota">Primero crea un parque en "Parques y precios".</p>
+  }
+
+  @if (dias(); as lista) {
+    @if (lista.length === 0) {
+      <p class="nota">No hubo actividad en ese rango. Prueba con otras fechas.</p>
+    } @else {
+      <dl class="resumen">
+        <div><dt>Ventas</dt><dd>{{ pesos(totales().ventas) }}</dd></div>
+        <div><dt>Entradas vendidas</dt><dd>{{ numero(totales().vendidas) }}</dd></div>
+        <div><dt>Ya ingresaron</dt><dd>{{ numero(totales().ingresaron) }}</dd></div>
+        <div><dt>Faltan por ingresar</dt><dd>{{ numero(totales().sinIngresar) }}</dd></div>
+        <div><dt>Entradas canceladas</dt><dd>{{ numero(totales().canceladas) }}</dd></div>
+      </dl>
+
+      <div class="graficas">
+        <app-grafica-barras titulo="Ventas por día" [dias]="etiquetas()" [series]="serieVentas()"
+                            [formato]="pesos" [formatoEje]="pesosCompactos" [formatoDia]="diaCorto" />
+        <app-grafica-barras titulo="Entradas por día" [dias]="etiquetas()" [series]="serieEntradas()"
+                            [formato]="numero" [formatoDia]="diaCorto" />
+      </div>
+
+      @if (puertas().length > 0) {
+        <h2>Ingresos por puerta</h2>
+        <ul class="lista-admin">
+          @for (p of puertas(); track p[0]) {
+            <li><strong>{{ p[0] }}</strong><span>{{ numero(p[1]) }} {{ p[1] === 1 ? 'persona' : 'personas' }}</span></li>
+          }
+        </ul>
+      }
+
+      <h2>Detalle por día</h2>
+      <div class="tabla-envoltura">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Día</th>
+              <th scope="col" class="num">Vendidas</th>
+              <th scope="col" class="num">Ventas</th>
+              <th scope="col" class="num">Canceladas</th>
+              <th scope="col" class="num">Ingresaron</th>
+              <th scope="col" class="num">Faltan</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of lista; track d.fecha) {
+              <tr>
+                <th scope="row">{{ diaCorto(d.fecha) }}</th>
+                <td class="num">{{ numero(d.entradasVendidas) }}</td>
+                <td class="num">{{ pesos(d.ventas) }}</td>
+                <td class="num">{{ numero(d.entradasCanceladas) }}</td>
+                <td class="num">{{ numero(d.ingresaron) }}</td>
+                <td class="num">{{ numero(d.sinIngresar) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>

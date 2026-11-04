@@ -64,3 +64,16 @@ export interface ConfiguracionDePrecios {
   };
   reglas: { tipo: string; porcentaje?: number; tamanoMinimo?: number }[];
 }
+
+export interface ResumenDelDia {
+  parqueId: string;
+  fecha: string;
+  ordenesVigentes: number;
+  entradasVendidas: number;
+  ventas: number;
+  ordenesCanceladas: number;
+  entradasCanceladas: number;
+  ingresaron: number;
+  sinIngresar: number;
+  ingresosPorPuerta: Record<string, number>;
+}

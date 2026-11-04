@@ -14,6 +14,7 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'parques' },
       { path: 'parques', title: 'Parques', loadComponent: () => import('./admin/parques/parques').then(m => m.ParquesAdmin) },
       { path: 'parques/:id/precios', title: 'Precios', loadComponent: () => import('./admin/precios/precios').then(m => m.PreciosAdmin) },
+      { path: 'reportes', title: 'Reportes', loadComponent: () => import('./admin/reportes/reportes').then(m => m.ReportesAdmin) },
       { path: 'usuarios', title: 'Usuarios', loadComponent: () => import('./admin/usuarios/usuarios').then(m => m.UsuariosAdmin) }
     ]
   },
