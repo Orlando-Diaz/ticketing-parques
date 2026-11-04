@@ -1,6 +1,6 @@
 # Frontend (Angular)
 
-Aplicación web de la boletería: el visitante elige parque, fecha y personas, ve el precio al instante, compra y recibe su boleto con código QR.
+Aplicación web de la boletería: el visitante elige parque, fecha y personas, ve el precio al instante, compra y recibe su boleto con código QR. El personal de la puerta inicia sesión, escanea el QR con la cámara (o escribe el código) y registra cuántas personas entran.
 
 ## Requisitos
 Node.js 20.19+, 22.12+ o 24+ (Angular 21) y la API corriendo en `http://localhost:8080` (ver README de la raíz).

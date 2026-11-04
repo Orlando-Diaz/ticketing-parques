@@ -1,0 +1,63 @@
+<main class="pagina pagina-estrecha">
+  <section>
+    <h1>Puerta</h1>
+    <p class="intro">Escanea el QR del visitante o escribe su código.</p>
+
+    <div class="bloque">
+      <label class="etiqueta" for="puerta">Esta puerta</label>
+      <input id="puerta" class="entrada" type="text" [value]="puerta()" (change)="cambiarPuerta($any($event.target).value)">
+    </div>
+
+    @if (escaneando()) {
+      <div class="bloque">
+        <app-lector-qr (leido)="codigoLeido($event)" />
+        <button type="button" class="secundario separado" (click)="escaneando.set(false)">Cancelar</button>
+      </div>
+    } @else {
+      <form class="bloque" (submit)="$event.preventDefault(); buscar(codigo.value)">
+        <label class="etiqueta" for="codigo">Código del pase</label>
+        <input #codigo id="codigo" class="entrada" type="text" autocomplete="off" autocapitalize="none" spellcheck="false">
+        <div class="botones separado">
+          <button type="submit" class="principal" [disabled]="buscando()">{{ buscando() ? 'Buscando…' : 'Buscar pase' }}</button>
+          <button type="button" class="secundario" (click)="escanear()">Escanear con cámara</button>
+        </div>
+      </form>
+    }
+
+    @if (error()) {
+      <p class="aviso error" role="alert">{{ error() }}</p>
+    }
+
+    @if (pase(); as p) {
+      <article class="bloque resultado" [class.anulado]="p.estado !== 'ACTIVO'">
+        @if (admitidas() !== null) {
+          <p class="resultado-estado ok" role="status">✔ Entraron {{ admitidas() }} {{ admitidas() === 1 ? 'persona' : 'personas' }}</p>
+        } @else if (p.estado !== 'ACTIVO') {
+          <p class="resultado-estado no" role="alert">✖ Pase anulado: no puede entrar</p>
+        } @else if (p.entradasRestantes === 0) {
+          <p class="resultado-estado no" role="alert">✖ Ya entraron todas las personas de este pase</p>
+        }
+
+        @if (esDeOtroDia() && admitidas() === null) {
+          <p class="aviso error" role="alert">Este pase es para el {{ fechaLarga(p.fechaVisita) }}, no para hoy.</p>
+        }
+
+        <p class="boleto-dato">Visita: {{ fechaLarga(p.fechaVisita) }}</p>
+        <p class="boleto-dato">Entradas: {{ p.entradasUsadas }} usadas de {{ p.entradasTotales }} · quedan <strong>{{ p.entradasRestantes }}</strong></p>
+
+        @if (puedeEntrar()) {
+          <div class="contador" role="group" aria-label="Personas que entran">
+            <button type="button" class="secundario" (click)="cambiarPersonas(-1)" [disabled]="personas() <= 1" aria-label="Una persona menos">−</button>
+            <output class="contador-valor">{{ personas() }}</output>
+            <button type="button" class="secundario" (click)="cambiarPersonas(1)" [disabled]="personas() >= p.entradasRestantes" aria-label="Una persona más">+</button>
+          </div>
+          <button type="button" class="principal grande" [disabled]="registrando()" (click)="dejarEntrar()">
+            {{ registrando() ? 'Registrando…' : 'Dejar entrar a ' + personas() + (personas() === 1 ? ' persona' : ' personas') }}
+          </button>
+        }
+
+        <button type="button" class="secundario separado" (click)="reiniciar()">Siguiente visitante</button>
+      </article>
+    }
+  </section>
+</main>

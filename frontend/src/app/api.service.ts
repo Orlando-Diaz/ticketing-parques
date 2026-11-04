@@ -38,6 +38,15 @@ export class ApiService {
     return firstValueFrom(this.http.get<Pase>(`${API_URL}/api/ordenes/${encodeURIComponent(ordenId)}/pase`));
   }
 
+  /** Solo personal de la puerta o administradores. */
+  consultarPase(codigo: string): Promise<Pase> {
+    return firstValueFrom(this.http.get<Pase>(`${API_URL}/api/accesos/pases/${encodeURIComponent(codigo)}`));
+  }
+
+  registrarIngreso(codigo: string, personas: number, puerta: string): Promise<Pase> {
+    return firstValueFrom(this.http.post<Pase>(`${API_URL}/api/accesos/ingresos`, { codigo, personas, puerta }));
+  }
+
   cancelar(id: string): Promise<Orden> {
     return firstValueFrom(this.http.post<Orden>(`${API_URL}/api/ordenes/${encodeURIComponent(id)}/cancelacion`, {}));
   }
@@ -52,6 +61,12 @@ export function mensajeDeError(error: unknown): string {
     const detalle = error.error?.detail;
     if (typeof detalle === 'string' && detalle.length > 0) {
       return detalle;
+    }
+    if (error.status === 401) {
+      return 'Tu sesión venció o no es válida. Inicia sesión de nuevo.';
+    }
+    if (error.status === 403) {
+      return 'Tu usuario no tiene permiso para hacer esto.';
     }
     if (error.status === 404) {
       return 'No encontramos lo que buscas.';

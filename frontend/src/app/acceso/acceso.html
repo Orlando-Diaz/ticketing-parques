@@ -1,0 +1,21 @@
+<main class="pagina pagina-estrecha">
+  <section>
+    <h1>Acceso del personal</h1>
+    <p class="intro">Para validar boletos en la puerta del parque.</p>
+
+    <form class="bloque" (submit)="entrar($event, usuario.value, clave.value)">
+      <label class="etiqueta" for="usuario">Usuario</label>
+      <input #usuario id="usuario" class="entrada" type="text" autocomplete="username" autocapitalize="none" required>
+
+      <label class="etiqueta separado" for="clave">Clave</label>
+      <input #clave id="clave" class="entrada" type="password" autocomplete="current-password" required>
+
+      @if (error()) {
+        <p class="aviso error" role="alert">{{ error() }}</p>
+      }
+      <button type="submit" class="principal separado" [disabled]="entrando()">
+        {{ entrando() ? 'Entrando…' : 'Entrar' }}
+      </button>
+    </form>
+  </section>
+</main>

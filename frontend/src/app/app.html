@@ -3,5 +3,14 @@
     <span class="marca-sello" aria-hidden="true"></span>
     Boletería
   </a>
+  <nav class="cabecera-personal" aria-label="Personal">
+    @if (auth.sesion(); as s) {
+      <a routerLink="/puerta">Puerta</a>
+      <span class="usuario">{{ s.usuario }}</span>
+      <button type="button" class="enlace" (click)="salir()">Salir</button>
+    } @else {
+      <a routerLink="/acceso">Personal</a>
+    }
+  </nav>
 </header>
 <router-outlet />

@@ -42,7 +42,7 @@ a { color: var(--verde); }
 :focus-visible { outline: 3px solid var(--verde); outline-offset: 2px; }
 
 /* ---------- Cabecera ---------- */
-.cabecera { padding: 1.25rem 1rem 0; max-width: 72rem; margin: 0 auto; }
+.cabecera { padding: 1.25rem 1rem 0; max-width: 72rem; margin: 0 auto; display: flex; align-items: center; }
 .marca {
   display: inline-flex; align-items: center; gap: .6rem;
   font-family: var(--fuente-titulo); font-weight: 700; font-size: 1.15rem;
@@ -180,7 +180,7 @@ button:disabled { opacity: .7; cursor: not-allowed; }
 
 /* ---------- Pantallas anchas ---------- */
 @media (min-width: 56rem) {
-  .pagina:not(.pagina-boleto) { grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1fr); gap: 3rem; padding-top: 2.5rem; }
+  .pagina:not(.pagina-boleto):not(.pagina-estrecha) { grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1fr); gap: 3rem; padding-top: 2.5rem; }
   .visitante { grid-template-columns: 6rem 9rem 1fr auto; }
   .precio-fila { grid-column: auto; }
 }
@@ -197,3 +197,23 @@ button:disabled { opacity: .7; cursor: not-allowed; }
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ---------- Personal: acceso y puerta ---------- */
+.cabecera-personal { margin-left: auto; display: flex; align-items: center; gap: .9rem; font-size: .95rem; }
+.cabecera-personal .usuario { color: var(--tinta-suave); }
+.pagina-estrecha { width: 100%; max-width: 34rem; grid-template-columns: minmax(0, 1fr); }
+.pagina-estrecha h1 { max-width: none; }
+.pagina-estrecha .entrada { max-width: none; }
+.separado { margin-top: 1rem; }
+.lector { position: relative; border-radius: var(--radio); overflow: hidden; background: #000; aspect-ratio: 1; }
+.lector video { width: 100%; height: 100%; object-fit: cover; }
+.lector-marco { position: absolute; inset: 15%; border: 3px solid var(--caléndula); border-radius: var(--radio); pointer-events: none; }
+.resultado { margin-top: 1rem; }
+.resultado.anulado { border-color: var(--error); }
+.resultado-estado { font-family: var(--fuente-titulo); font-weight: 800; font-size: 1.5rem; line-height: 1.2; margin-bottom: .75rem; }
+.resultado-estado.ok { color: var(--verde); }
+.resultado-estado.no { color: var(--error); }
+.contador { display: flex; align-items: center; justify-content: center; gap: 1.25rem; margin: 1.25rem 0 .75rem; }
+.contador button { min-width: 3.5rem; min-height: 3.5rem; font-size: 1.75rem; }
+.contador-valor { font-family: var(--fuente-titulo); font-weight: 800; font-size: 3rem; min-width: 3ch; text-align: center; }
+.principal.grande { width: 100%; min-height: 3.75rem; font-size: 1.2rem; }
