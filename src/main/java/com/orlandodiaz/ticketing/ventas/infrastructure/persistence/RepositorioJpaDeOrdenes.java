@@ -60,9 +60,15 @@ public class RepositorioJpaDeOrdenes implements RepositorioDeOrdenes {
         return jpa.findById(id.valor()).map(this::aDominio);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Orden> buscarPorCliente(String cliente) {
+        return jpa.findByClienteOrderByCreadaEnDesc(cliente).stream().map(this::aDominio).toList();
+    }
+
     private OrdenJpaEntity nueva(Orden orden) {
         OrdenJpaEntity entidad = new OrdenJpaEntity(orden.id().valor(), orden.parqueId().valor(),
-                orden.fechaVisita(), orden.creadaEn(), orden.total().pesos(), orden.estado().name());
+                orden.fechaVisita(), orden.creadaEn(), orden.total().pesos(), orden.estado().name(), orden.cliente());
         int posicion = 0;
         for (LineaDeOrden l : orden.lineas()) {
             entidad.agregarLinea(new LineaOrdenJpaEntity(
@@ -76,6 +82,6 @@ public class RepositorioJpaDeOrdenes implements RepositorioDeOrdenes {
                 .map(l -> new LineaDeOrden(l.getEdadVisitante(), l.isResidente(), Dinero.pesos(l.getPrecio())))
                 .toList();
         return Orden.reconstruir(new OrdenId(e.getId()), new ParqueId(e.getParqueId()), e.getFechaVisita(),
-                lineas, e.getCreadaEn(), EstadoOrden.valueOf(e.getEstado()), e.getVersion());
+                lineas, e.getCreadaEn(), EstadoOrden.valueOf(e.getEstado()), e.getVersion(), e.getCliente());
     }
 }

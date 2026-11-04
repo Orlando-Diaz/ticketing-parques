@@ -23,6 +23,17 @@ ticketing:
     # El administrador inicial se crea al arrancar solo si defines ADMIN_PASSWORD (min. 10 caracteres).
     admin-usuario: ${ADMIN_USER:admin}
     admin-clave: ${ADMIN_PASSWORD:}
+  correo:
+    # Sin MAIL_USER y MAIL_PASSWORD el correo no se envia: se escribe en el log. Para Gmail usa una "contrasena de
+    # aplicacion" (no tu clave normal) y NUNCA la pongas en el codigo.
+    host: ${MAIL_HOST:smtp.gmail.com}
+    puerto: ${MAIL_PORT:587}
+    usuario: ${MAIL_USER:}
+    clave: ${MAIL_PASSWORD:}
+    remitente: ${MAIL_FROM:}
+  frontend:
+    # Direccion publica del frontend: los correos enlazan a ella
+    url: ${FRONTEND_URL:http://localhost:4200}
   cors:
     # Origenes (paginas web) autorizados a llamar a la API desde el navegador, separados por coma
     origenes: ${CORS_ORIGENES:http://localhost:4200}

@@ -8,7 +8,10 @@ import com.orlandodiaz.ticketing.ventas.application.ConsultarOrden;
 import com.orlandodiaz.ticketing.ventas.domain.Orden;
 import com.orlandodiaz.ticketing.ventas.domain.OrdenId;
 import com.orlandodiaz.ticketing.ventas.domain.Visitante;
+import com.orlandodiaz.ticketing.ventas.application.ListarMisOrdenes;
 import java.net.URI;
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -33,29 +36,33 @@ public class OrdenesController {
     }
 
     public record OrdenResponse(String id, String parqueId, LocalDate fechaVisita, String estado,
-                                long total, List<LineaResponse> lineas) {
+                                long total, List<LineaResponse> lineas, LocalDateTime creadaEn) {
 
         static OrdenResponse desde(Orden orden) {
             return new OrdenResponse(orden.id().valor(), orden.parqueId().valor(), orden.fechaVisita(),
                     orden.estado().name(), orden.total().pesos(),
                     orden.lineas().stream()
                             .map(l -> new LineaResponse(l.edadVisitante(), l.residente(), l.precio().pesos()))
-                            .toList());
+                            .toList(),
+                    orden.creadaEn());
         }
     }
 
     private final ComprarEntradas comprarEntradas;
     private final CancelarOrden cancelarOrden;
     private final ConsultarOrden consultarOrden;
+    private final ListarMisOrdenes listarMisOrdenes;
 
-    public OrdenesController(ComprarEntradas comprarEntradas, CancelarOrden cancelarOrden, ConsultarOrden consultarOrden) {
+    public OrdenesController(ComprarEntradas comprarEntradas, CancelarOrden cancelarOrden,
+                             ConsultarOrden consultarOrden, ListarMisOrdenes listarMisOrdenes) {
+        this.listarMisOrdenes = listarMisOrdenes;
         this.comprarEntradas = comprarEntradas;
         this.cancelarOrden = cancelarOrden;
         this.consultarOrden = consultarOrden;
     }
 
     @PostMapping
-    public ResponseEntity<OrdenResponse> comprar(@RequestBody CompraRequest request) {
+    public ResponseEntity<OrdenResponse> comprar(@RequestBody CompraRequest request, Principal quien) {
         if (request.parqueId() == null || request.fechaVisita() == null || request.visitantes() == null) {
             throw new IllegalArgumentException("Se necesitan parqueId, fechaVisita y visitantes");
         }
@@ -67,9 +74,15 @@ public class OrdenesController {
         }).toList();
 
         Orden orden = comprarEntradas.ejecutar(new ComprarEntradasComando(
-                new ParqueId(request.parqueId()), request.fechaVisita(), visitantes));
+                new ParqueId(request.parqueId()), request.fechaVisita(), visitantes, quien.getName()));
         return ResponseEntity.created(URI.create("/api/ordenes/" + orden.id().valor()))
                 .body(OrdenResponse.desde(orden));
+    }
+
+    /** El perfil: las compras de quien tiene la sesion iniciada. Va antes que "/{id}" ("mias" no es un id). */
+    @GetMapping("/mias")
+    public List<OrdenResponse> mias(Principal quien) {
+        return listarMisOrdenes.ejecutar(quien.getName()).stream().map(OrdenResponse::desde).toList();
     }
 
     @GetMapping("/{id}")

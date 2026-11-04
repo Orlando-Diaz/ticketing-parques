@@ -99,4 +99,18 @@ class ArquitecturaTest {
             noClasses().that().resideInAnyPackage("..reportes.domain..", "..reportes.application..")
                     .should().dependOnClassesThat()
                     .resideInAnyPackage("..ventas..", "..accesos..", "..precios..", "..catalogo..", "..facturacion..");
+
+    /** Notificaciones solo conoce a otros modulos en sus adaptadores (el que escucha eventos y el del catalogo). */
+    @ArchTest
+    static final ArchRule notificaciones_solo_conoce_otros_modulos_desde_sus_adaptadores =
+            noClasses().that().resideInAnyPackage("..notificaciones.domain..", "..notificaciones.application..")
+                    .should().dependOnClassesThat()
+                    .resideInAnyPackage("..ventas..", "..accesos..", "..precios..", "..catalogo..", "..facturacion..",
+                            "..reportes..", "..seguridad..");
+
+    @ArchTest
+    static final ArchRule el_negocio_no_conoce_notificaciones =
+            noClasses().that().resideInAnyPackage("..ventas..", "..accesos..", "..precios..", "..catalogo..",
+                            "..facturacion..", "..reportes..", "..seguridad..")
+                    .should().dependOnClassesThat().resideInAPackage("..notificaciones..");
 }

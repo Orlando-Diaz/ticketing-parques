@@ -2,6 +2,7 @@ package com.orlandodiaz.ticketing.seguridad.application;
 
 import com.orlandodiaz.ticketing.seguridad.application.EmisorDeTokens.TokenEmitido;
 import com.orlandodiaz.ticketing.seguridad.domain.Usuario;
+import java.util.Locale;
 
 /** CASO DE USO: cambiar usuario + clave por un token. Si algo no coincide, siempre el mismo error. */
 public class IniciarSesion {
@@ -20,7 +21,7 @@ public class IniciarSesion {
         if (nombre == null || clave == null) {
             throw new CredencialesInvalidasException();
         }
-        Usuario usuario = usuarios.buscarPorNombre(nombre).orElseThrow(CredencialesInvalidasException::new);
+        Usuario usuario = usuarios.buscarPorNombre(nombre.trim().toLowerCase(Locale.ROOT)).orElseThrow(CredencialesInvalidasException::new);
         if (!cifrador.coincide(clave, usuario.claveCifrada())) {
             throw new CredencialesInvalidasException();
         }

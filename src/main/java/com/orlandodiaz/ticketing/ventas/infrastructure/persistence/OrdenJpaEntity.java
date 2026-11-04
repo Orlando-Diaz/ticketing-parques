@@ -37,6 +37,9 @@ public class OrdenJpaEntity {
     @Column(name = "estado", nullable = false)
     private String estado;
 
+    @Column(name = "cliente")
+    private String cliente;
+
     /** Bloqueo optimista: Hibernate lo sube en cada UPDATE. Long (no long): null = fila nueva. */
     @Version
     @Column(name = "version", nullable = false)
@@ -51,13 +54,14 @@ public class OrdenJpaEntity {
     }
 
     public OrdenJpaEntity(String id, String parqueId, LocalDate fechaVisita, LocalDateTime creadaEn,
-                          long total, String estado) {
+                          long total, String estado, String cliente) {
         this.id = id;
         this.parqueId = parqueId;
         this.fechaVisita = fechaVisita;
         this.creadaEn = creadaEn;
         this.total = total;
         this.estado = estado;
+        this.cliente = cliente;
     }
 
     public void agregarLinea(LineaOrdenJpaEntity linea) {
@@ -86,6 +90,10 @@ public class OrdenJpaEntity {
 
     public String getEstado() {
         return estado;
+    }
+
+    public String getCliente() {
+        return cliente;
     }
 
     public Long getVersion() {

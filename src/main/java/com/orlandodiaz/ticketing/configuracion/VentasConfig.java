@@ -8,6 +8,7 @@ import com.orlandodiaz.ticketing.shared.application.PublicadorDeEventos;
 import com.orlandodiaz.ticketing.ventas.application.CancelarOrden;
 import com.orlandodiaz.ticketing.ventas.application.ComprarEntradas;
 import com.orlandodiaz.ticketing.ventas.application.ConsultarOrden;
+import com.orlandodiaz.ticketing.ventas.application.ListarMisOrdenes;
 import com.orlandodiaz.ticketing.ventas.application.CupoDeParque;
 import com.orlandodiaz.ticketing.ventas.application.PreciosDeEntrada;
 import com.orlandodiaz.ticketing.ventas.application.Reloj;
@@ -55,6 +56,11 @@ public class VentasConfig {
     CancelarOrden cancelarOrden(RepositorioDeOrdenes ordenes, CupoDeParque cupo, Reloj reloj,
                                 PublicadorDeEventos eventos, EjecutorTransaccional transaccion) {
         return new CancelarOrden(ordenes, cupo, reloj, eventos, transaccion);
+    }
+
+    @Bean
+    ListarMisOrdenes listarMisOrdenes(RepositorioDeOrdenes ordenes) {
+        return new ListarMisOrdenes(ordenes);
     }
 
     @Bean

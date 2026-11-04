@@ -37,6 +37,9 @@ public class UsuariosController {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Rol desconocido: " + peticion.rol() + " (usa ADMIN o PUERTA)");
         }
+        if (rol == Rol.CLIENTE) {
+            throw new IllegalArgumentException("Los clientes crean su propia cuenta; aqui solo se crean ADMIN o PUERTA");
+        }
         Usuario creado = crearUsuario.ejecutar(peticion.nombre(), peticion.clave(), rol);
         return new UsuarioResponse(creado.nombre(), creado.rol().name());
     }

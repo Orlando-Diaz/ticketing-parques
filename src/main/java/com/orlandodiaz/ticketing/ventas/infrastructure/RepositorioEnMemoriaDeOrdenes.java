@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RepositorioEnMemoriaDeOrdenes implements RepositorioDeOrdenes {
 
     private record Fila(OrdenId id, ParqueId parqueId, LocalDate fechaVisita, List<LineaDeOrden> lineas,
-                        LocalDateTime creadaEn, EstadoOrden estado, long version) {
+                        LocalDateTime creadaEn, EstadoOrden estado, long version, String cliente) {
     }
 
     private final Map<OrdenId, Fila> almacen = new ConcurrentHashMap<>();
@@ -34,20 +34,30 @@ public class RepositorioEnMemoriaDeOrdenes implements RepositorioDeOrdenes {
                 if (o.version() != null) {
                     throw new ConflictoDeConcurrenciaException("La orden ya no existe");
                 }
-                return new Fila(o.id(), o.parqueId(), o.fechaVisita(), o.lineas(), o.creadaEn(), o.estado(), 0);
+                return new Fila(o.id(), o.parqueId(), o.fechaVisita(), o.lineas(), o.creadaEn(), o.estado(), 0, o.cliente());
             }
             if (o.version() == null || o.version() != actual.version()) {
                 throw new ConflictoDeConcurrenciaException("Otra operacion modifico esta orden antes");
             }
             return new Fila(o.id(), o.parqueId(), o.fechaVisita(), o.lineas(), o.creadaEn(), o.estado(),
-                    actual.version() + 1);
+                    actual.version() + 1, o.cliente());
         });
     }
 
     @Override
     public Optional<Orden> buscarPorId(OrdenId id) {
         return Optional.ofNullable(almacen.get(id)).map(f -> Orden.reconstruir(
-                f.id(), f.parqueId(), f.fechaVisita(), f.lineas(), f.creadaEn(), f.estado(), f.version()));
+                f.id(), f.parqueId(), f.fechaVisita(), f.lineas(), f.creadaEn(), f.estado(), f.version(), f.cliente()));
+    }
+
+    @Override
+    public List<Orden> buscarPorCliente(String cliente) {
+        return almacen.values().stream()
+                .filter(f -> cliente != null && cliente.equals(f.cliente()))
+                .sorted(java.util.Comparator.comparing(Fila::creadaEn).reversed())
+                .map(f -> Orden.reconstruir(f.id(), f.parqueId(), f.fechaVisita(), f.lineas(), f.creadaEn(),
+                        f.estado(), f.version(), f.cliente()))
+                .toList();
     }
 
     /** Solo para pruebas; no forma parte del puerto. */

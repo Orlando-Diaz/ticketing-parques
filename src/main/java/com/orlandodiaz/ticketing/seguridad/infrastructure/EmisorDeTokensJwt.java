@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 public class EmisorDeTokensJwt implements EmisorDeTokens {
 
     public static final String CLAIM_ROL = "rol";
+    public static final String CLAIM_NOMBRE = "nombre";
 
     private final JwtEncoder codificador;
     private final Duration vigencia;
@@ -31,6 +32,7 @@ public class EmisorDeTokensJwt implements EmisorDeTokens {
                 .issuedAt(ahora)
                 .expiresAt(ahora.plus(vigencia))
                 .claim(CLAIM_ROL, usuario.rol().name())
+                .claim(CLAIM_NOMBRE, usuario.paraMostrar())
                 .build();
         JwsHeader cabecera = JwsHeader.with(MacAlgorithm.HS256).build();
         String token = codificador.encode(JwtEncoderParameters.from(cabecera, claims)).getTokenValue();

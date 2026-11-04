@@ -7,7 +7,12 @@ import java.util.List;
 import java.util.Objects;
 
 /** Los datos que entran al caso de uso de comprar (lo que luego mandara la API). */
-public record ComprarEntradasComando(ParqueId parqueId, LocalDate fechaVisita, List<Visitante> visitantes) {
+public record ComprarEntradasComando(ParqueId parqueId, LocalDate fechaVisita, List<Visitante> visitantes,
+                                     String cliente) {
+
+    public ComprarEntradasComando(ParqueId parqueId, LocalDate fechaVisita, List<Visitante> visitantes) {
+        this(parqueId, fechaVisita, visitantes, null);
+    }
 
     public ComprarEntradasComando {
         Objects.requireNonNull(parqueId, "El parque es obligatorio");

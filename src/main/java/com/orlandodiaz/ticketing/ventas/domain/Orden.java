@@ -28,12 +28,13 @@ public class Orden {
     private final List<LineaDeOrden> lineas;
     private final LocalDateTime creadaEn;
     private final Dinero total;
+    private final String cliente;
     private EstadoOrden estado;
     private final Long version;
     private final List<EventoDeDominio> eventos = new ArrayList<>();
 
     private Orden(OrdenId id, ParqueId parqueId, LocalDate fechaVisita, List<LineaDeOrden> lineas,
-                  LocalDateTime creadaEn, EstadoOrden estado, Long version) {
+                  LocalDateTime creadaEn, EstadoOrden estado, Long version, String cliente) {
         this.id = Objects.requireNonNull(id, "El id es obligatorio");
         this.parqueId = Objects.requireNonNull(parqueId, "El parque es obligatorio");
         this.fechaVisita = Objects.requireNonNull(fechaVisita, "La fecha de visita es obligatoria");
@@ -45,13 +46,21 @@ public class Orden {
         this.total = this.lineas.stream().map(LineaDeOrden::precio).reduce(Dinero.CERO, Dinero::sumar);
         this.estado = Objects.requireNonNull(estado, "El estado es obligatorio");
         this.version = version;
+        this.cliente = cliente;
     }
 
     public static Orden crear(ParqueId parqueId, LocalDate fechaVisita, List<LineaDeOrden> lineas, LocalDateTime creadaEn) {
+        return crear(parqueId, fechaVisita, lineas, creadaEn, null);
+    }
+
+    /** {@code cliente} es el nombre de usuario de quien compra (su correo); null si no hay cuenta asociada. */
+    public static Orden crear(ParqueId parqueId, LocalDate fechaVisita, List<LineaDeOrden> lineas,
+                              LocalDateTime creadaEn, String cliente) {
         exigirFechaValida(fechaVisita, creadaEn.toLocalDate());
-        Orden orden = new Orden(OrdenId.nuevo(), parqueId, fechaVisita, lineas, creadaEn, EstadoOrden.CONFIRMADA, null);
+        Orden orden = new Orden(OrdenId.nuevo(), parqueId, fechaVisita, lineas, creadaEn, EstadoOrden.CONFIRMADA,
+                null, cliente);
         orden.eventos.add(new OrdenConfirmada(
-                orden.id, orden.parqueId, orden.fechaVisita, orden.lineas, orden.total, creadaEn));
+                orden.id, orden.parqueId, orden.fechaVisita, orden.lineas, orden.total, creadaEn, cliente));
         return orden;
     }
 
@@ -62,7 +71,13 @@ public class Orden {
     public static Orden reconstruir(OrdenId id, ParqueId parqueId, LocalDate fechaVisita,
                                     List<LineaDeOrden> lineas, LocalDateTime creadaEn, EstadoOrden estado,
                                     long version) {
-        return new Orden(id, parqueId, fechaVisita, lineas, creadaEn, estado, version);
+        return reconstruir(id, parqueId, fechaVisita, lineas, creadaEn, estado, version, null);
+    }
+
+    public static Orden reconstruir(OrdenId id, ParqueId parqueId, LocalDate fechaVisita,
+                                    List<LineaDeOrden> lineas, LocalDateTime creadaEn, EstadoOrden estado,
+                                    long version, String cliente) {
+        return new Orden(id, parqueId, fechaVisita, lineas, creadaEn, estado, version, cliente);
     }
 
     /** No se puede comprar para un dia que ya paso (hoy si se puede). */
@@ -116,6 +131,11 @@ public class Orden {
 
     public Dinero total() {
         return total;
+    }
+
+    /** Nombre de usuario (correo) de quien compro; null en compras sin cuenta. */
+    public String cliente() {
+        return cliente;
     }
 
     public EstadoOrden estado() {

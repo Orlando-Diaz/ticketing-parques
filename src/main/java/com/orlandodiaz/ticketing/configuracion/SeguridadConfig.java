@@ -5,6 +5,7 @@ import com.orlandodiaz.ticketing.seguridad.application.CifradorDeClaves;
 import com.orlandodiaz.ticketing.seguridad.application.CrearUsuario;
 import com.orlandodiaz.ticketing.seguridad.application.EmisorDeTokens;
 import com.orlandodiaz.ticketing.seguridad.application.IniciarSesion;
+import com.orlandodiaz.ticketing.seguridad.application.RegistrarCliente;
 import com.orlandodiaz.ticketing.seguridad.application.RepositorioDeUsuarios;
 import com.orlandodiaz.ticketing.seguridad.domain.Rol;
 import com.orlandodiaz.ticketing.seguridad.infrastructure.CifradorBCrypt;
@@ -73,6 +74,11 @@ public class SeguridadConfig {
     @Bean
     CrearUsuario crearUsuario(RepositorioDeUsuarios usuarios, CifradorDeClaves cifrador) {
         return new CrearUsuario(usuarios, cifrador);
+    }
+
+    @Bean
+    RegistrarCliente registrarCliente(RepositorioDeUsuarios usuarios, CifradorDeClaves cifrador) {
+        return new RegistrarCliente(usuarios, cifrador);
     }
 
     @Bean

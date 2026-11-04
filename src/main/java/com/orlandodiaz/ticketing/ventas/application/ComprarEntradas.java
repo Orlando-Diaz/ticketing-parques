@@ -55,7 +55,7 @@ public class ComprarEntradas {
         cupo.reservar(comando.parqueId(), comando.fechaVisita(), cantidad);
         Orden orden;
         try {
-            orden = Orden.crear(comando.parqueId(), comando.fechaVisita(), lineas, ahora);
+            orden = Orden.crear(comando.parqueId(), comando.fechaVisita(), lineas, ahora, comando.cliente());
             Orden nueva = orden;
             transaccion.ejecutar(() -> {
                 ordenes.guardar(nueva);

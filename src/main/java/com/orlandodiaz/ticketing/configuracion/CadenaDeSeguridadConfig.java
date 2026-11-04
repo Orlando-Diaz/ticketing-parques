@@ -58,12 +58,16 @@ public class CadenaDeSeguridadConfig {
                 .csrf(csrf -> csrf.disable()) // API sin sesiones ni cookies: no hay nada que falsificar
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
-                        // Publico: el visitante consulta, compra y ve lo suyo (el id de la orden es un UUID imposible de adivinar)
-                        .requestMatchers("/api/auth/login").permitAll()
+                        // Publico: cualquiera consulta parques y precios, y ve una orden si tiene su id (el id de la orden es un UUID imposible de adivinar)
+                        .requestMatchers("/api/auth/login", "/api/auth/registro").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/parques").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/parques/*/disponibilidad",
                                 "/api/parques/*/precios", "/api/parques/*/precios/cotizacion").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/ordenes").permitAll()
+                        // Comprar exige cuenta (cliente, o administrador); "mias" va antes de "/api/ordenes/*" a proposito
+                        .requestMatchers(HttpMethod.GET, "/api/ordenes/mias")
+                        .hasAnyRole(Rol.CLIENTE.name(), Rol.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/api/ordenes")
+                        .hasAnyRole(Rol.CLIENTE.name(), Rol.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/api/ordenes/*", "/api/ordenes/*/factura",
                                 "/api/ordenes/*/pase").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/ordenes/*/cancelacion").permitAll()

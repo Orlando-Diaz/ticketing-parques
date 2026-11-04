@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/** Adaptador con SQL directo: son tres columnas y ninguna regla que proteger, no hace falta JPA. */
+/** Adaptador con SQL directo: son pocas columnas y ninguna regla que proteger, no hace falta JPA. */
 public class RepositorioJdbcDeUsuarios implements RepositorioDeUsuarios {
 
     private final JdbcTemplate jdbc;
@@ -20,17 +20,18 @@ public class RepositorioJdbcDeUsuarios implements RepositorioDeUsuarios {
 
     @Override
     public Optional<Usuario> buscarPorNombre(String nombre) {
-        return jdbc.query("select nombre, clave_cifrada, rol from usuario where nombre = ?",
+        return jdbc.query("select nombre, clave_cifrada, rol, nombre_visible from usuario where nombre = ?",
                 (rs, fila) -> new Usuario(rs.getString("nombre"), rs.getString("clave_cifrada"),
-                        Rol.valueOf(rs.getString("rol"))),
+                        Rol.valueOf(rs.getString("rol")), rs.getString("nombre_visible")),
                 nombre).stream().findFirst();
     }
 
     @Override
     public void guardar(Usuario usuario) {
         try {
-            jdbc.update("insert into usuario (nombre, clave_cifrada, rol, creado_en) values (?, ?, ?, ?)",
-                    usuario.nombre(), usuario.claveCifrada(), usuario.rol().name(), LocalDateTime.now());
+            jdbc.update("insert into usuario (nombre, clave_cifrada, rol, nombre_visible, creado_en) values (?, ?, ?, ?, ?)",
+                    usuario.nombre(), usuario.claveCifrada(), usuario.rol().name(), usuario.nombreVisible(),
+                    LocalDateTime.now());
         } catch (DuplicateKeyException e) {
             throw new UsuarioYaExisteException(usuario.nombre());
         }
